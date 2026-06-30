@@ -103,19 +103,23 @@
   .gltotal{display:flex;justify-content:space-between;padding-top:11px;margin-top:5px;border-top:2px solid var(--gl);font-weight:800;font-size:16px;color:var(--gl-dark)}
   .freenote{font-size:12px;color:var(--gl-dark);margin-top:9px}
 
-  .chat{margin-top:26px;border-top:1px solid var(--line);padding-top:18px}
-  .chat-suggest{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
-  .chat-suggest .chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 13px;font-size:13px;cursor:pointer;transition:.15s}
-  .chat-suggest .chip:hover{border-color:var(--gl);background:var(--gl-soft);color:var(--gl-dark)}
-  .chat-log{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
+  .chat{margin-top:28px;border-top:1px solid var(--line);padding-top:20px}
+  .chat-suggest{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+  .chat-suggest .chip{border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 12px;font-size:13px;color:var(--ink-soft);cursor:pointer;transition:.15s}
+  .chat-suggest .chip:hover{border-color:var(--gl);color:var(--gl-dark);background:#f0fdfa}
+  .chat-log{display:flex;flex-direction:column;gap:16px;margin-bottom:16px}
   .chat-log:empty{display:none}
-  .bubble{max-width:88%;padding:11px 14px;border-radius:14px;font-size:14px;line-height:1.5;white-space:pre-wrap}
-  .bubble.user{align-self:flex-end;background:var(--gl);color:#fff;border-bottom-right-radius:4px}
-  .bubble.ai{align-self:flex-start;background:#f1f5f9;color:var(--ink);border-bottom-left-radius:4px}
-  .bubble.ai .cursor{color:#94a3b8}
-  .chat-input{display:flex;gap:10px}
-  .chat-input input{flex:1;border:1px solid var(--line);border-radius:10px;padding:11px 14px;font:inherit}
-  .chat-input input:focus{border-color:var(--gl);outline:none}
+  .msg{display:flex;gap:10px;max-width:92%}
+  .msg.ai{align-self:flex-start}
+  .msg.user{align-self:flex-end}
+  .avatar{flex:0 0 auto;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;letter-spacing:.3px;background:var(--gl-soft);color:var(--gl-dark);margin-top:1px}
+  .bubble{padding:10px 14px;border-radius:12px;font-size:14px;line-height:1.55;white-space:pre-wrap}
+  .msg.ai .bubble{background:#f8fafc;border:1px solid var(--line);color:var(--ink)}
+  .msg.user .bubble{background:var(--gl);color:#fff}
+  .chat-input{display:flex;gap:8px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:12px;padding:6px 6px 6px 15px;transition:.15s}
+  .chat-input:focus-within{border-color:var(--gl);box-shadow:0 0 0 3px rgba(13,148,136,.12)}
+  .chat-input input{flex:1;border:none;outline:none;background:transparent;font:inherit;padding:8px 0}
+  .chat-input .btn{padding:9px 18px;border-radius:9px}
   .chat-input .btn:disabled{opacity:.5;cursor:not-allowed}
   .cta-row{margin-top:22px}
   .disclaimer{font-size:12px;color:var(--ink-soft);margin-top:16px;line-height:1.5}
@@ -682,12 +686,19 @@ function addRow(){ items.push(mkItem("",0,0,0,"other")); renderRows(); compute(f
 
 /* ---------- streaming Q&A chat (/api/ask) ---------- */
 function addBubble(role,text){
-  const el=document.createElement("div");
-  el.className="bubble "+(role==="user"?"user":"ai");
-  el.textContent=text;
-  $("#chatLog").appendChild(el);
+  const wrap=document.createElement("div");
+  wrap.className="msg "+(role==="user"?"user":"ai");
+  if(role!=="user"){
+    const av=document.createElement("div");
+    av.className="avatar"; av.textContent="GL";
+    wrap.appendChild(av);
+  }
+  const b=document.createElement("div");
+  b.className="bubble"; b.textContent=text;
+  wrap.appendChild(b);
+  $("#chatLog").appendChild(wrap);
   $("#chatLog").scrollTop=$("#chatLog").scrollHeight;
-  return el;
+  return b;
 }
 async function sendChat(text){
   text=(text||"").trim();

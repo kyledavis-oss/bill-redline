@@ -2,6 +2,7 @@
 // Streaming Q&A about the uploaded bill. Streams plain-text chunks back to the
 // browser as Claude generates them. The API key stays server side.
 const Anthropic = require("@anthropic-ai/sdk");
+const { guard } = require("../lib/guard");
 
 const client = new Anthropic();
 
@@ -31,6 +32,7 @@ module.exports = async (req, res) => {
     res.status(405).json({ error: "method_not_allowed" });
     return;
   }
+  if (!guard(req, res)) return;
   let body;
   try {
     body = typeof req.body === "string" ? JSON.parse(req.body) : (req.body || {});

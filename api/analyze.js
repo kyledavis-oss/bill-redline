@@ -2,6 +2,7 @@
 // Takes extracted legal-bill text, returns a structured redline via Claude.
 // The ANTHROPIC_API_KEY lives only here (server side) and is never shipped to the browser.
 const Anthropic = require("@anthropic-ai/sdk");
+const { guard } = require("../lib/guard");
 
 const client = new Anthropic(); // reads ANTHROPIC_API_KEY from the environment
 
@@ -93,6 +94,7 @@ module.exports = async (req, res) => {
     res.status(405).json({ error: "method_not_allowed" });
     return;
   }
+  if (!guard(req, res)) return;
   let text = "";
   try {
     const body = typeof req.body === "string" ? JSON.parse(req.body) : (req.body || {});

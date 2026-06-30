@@ -24,14 +24,19 @@
   .card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:26px;margin-bottom:22px}
   .card h2{margin:0 0 4px;font-size:20px}
   .card .hint{color:var(--ink-soft);font-size:14px;margin:0 0 18px}
-  .drop{border:2px dashed #cbd5e1;border-radius:14px;padding:40px 20px;text-align:center;cursor:pointer;transition:.15s;background:#fcfdfe}
-  .drop:hover,.drop.drag{border-color:var(--gl);background:var(--gl-soft)}
-  .drop .big{font-size:18px;font-weight:600}
-  .drop .small{color:var(--ink-soft);font-size:13px;margin-top:6px}
+  .drop{border:2px dashed #cbd5e1;border-radius:14px;padding:34px 24px;text-align:center;transition:.15s;background:#fcfdfe}
+  .drop.drag{border-color:var(--gl);background:var(--gl-soft)}
+  .drop svg{width:38px;height:38px;color:#94a3b8;margin-bottom:10px}
+  .drop-title{font-size:17px;font-weight:600;line-height:1.3}
+  .drop-sub{color:var(--ink-soft);font-size:13px;margin:6px 0 18px}
   .drop input{display:none}
   .status{font-size:13px;color:var(--ink-soft);margin-top:12px;min-height:18px}
   .demolink{margin-top:14px;font-size:13px}
   .demolink a{color:var(--gl-dark);font-weight:600;cursor:pointer;text-decoration:underline}
+  .aitoggle{display:flex;gap:9px;align-items:flex-start;margin-top:14px;font-size:13px;color:var(--ink-soft);cursor:pointer;line-height:1.45}
+  .aitoggle input{margin-top:2px;flex:0 0 auto}
+  .ainote{background:#f0fdfa;border:1px solid #99f6e4;border-radius:12px;padding:14px 16px;margin-top:16px;font-size:14px;color:var(--ink)}
+  .ainote b{color:var(--gl-dark)}
   .btn{appearance:none;border:none;border-radius:10px;padding:12px 20px;font-weight:700;font-size:15px;cursor:pointer;transition:.15s}
   .btn.primary{background:var(--gl);color:#fff}
   .btn.primary:hover{background:var(--gl-dark)}
@@ -98,6 +103,20 @@
   .gltotal{display:flex;justify-content:space-between;padding-top:11px;margin-top:5px;border-top:2px solid var(--gl);font-weight:800;font-size:16px;color:var(--gl-dark)}
   .freenote{font-size:12px;color:var(--gl-dark);margin-top:9px}
 
+  .chat{margin-top:26px;border-top:1px solid var(--line);padding-top:18px}
+  .chat-suggest{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+  .chat-suggest .chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 13px;font-size:13px;cursor:pointer;transition:.15s}
+  .chat-suggest .chip:hover{border-color:var(--gl);background:var(--gl-soft);color:var(--gl-dark)}
+  .chat-log{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
+  .chat-log:empty{display:none}
+  .bubble{max-width:88%;padding:11px 14px;border-radius:14px;font-size:14px;line-height:1.5;white-space:pre-wrap}
+  .bubble.user{align-self:flex-end;background:var(--gl);color:#fff;border-bottom-right-radius:4px}
+  .bubble.ai{align-self:flex-start;background:#f1f5f9;color:var(--ink);border-bottom-left-radius:4px}
+  .bubble.ai .cursor{color:#94a3b8}
+  .chat-input{display:flex;gap:10px}
+  .chat-input input{flex:1;border:1px solid var(--line);border-radius:10px;padding:11px 14px;font:inherit}
+  .chat-input input:focus{border-color:var(--gl);outline:none}
+  .chat-input .btn:disabled{opacity:.5;cursor:not-allowed}
   .cta-row{margin-top:22px}
   .disclaimer{font-size:12px;color:var(--ink-soft);margin-top:16px;line-height:1.5}
   .hidden{display:none}
@@ -119,12 +138,19 @@
   <section class="card" id="uploadCard">
     <h2>Upload your bill</h2>
     <p class="hint">A PDF invoice from your firm. Everything is read right here in your browser. Your bill is never sent to a server.</p>
-    <label class="drop" id="drop">
-      <div class="big">Drop your PDF here, or click to choose</div>
-      <div class="small">We do the math the moment it lands.</div>
+    <div class="drop" id="drop">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/>
+        <path d="M14 3v5h5"/>
+        <path d="M12 18v-6"/><path d="M9.5 14.5 12 12l2.5 2.5"/>
+      </svg>
+      <div class="drop-title">Drag and drop your invoice here</div>
+      <div class="drop-sub">PDF format. We do the math the moment it lands.</div>
+      <button type="button" class="btn primary" id="chooseBtn">Choose a PDF file</button>
       <input type="file" id="file" accept="application/pdf" />
-    </label>
+    </div>
     <div class="status" id="status"></div>
+    <label class="aitoggle"><input type="checkbox" id="useAI" /> <span>Analyze with AI for a smarter read. This sends the bill's text (not the file) to our server for analysis. Leave unchecked to keep everything on your device.</span></label>
     <div class="demolink">No bill handy? <a id="demo">Run a sample bill instead.</a></div>
   </section>
 
@@ -142,6 +168,7 @@
       </div>
     </div>
     <div class="savebanner" id="saveBanner"></div>
+    <div class="ainote hidden" id="aiNote"></div>
     <p class="pitch" id="pitch"></p>
 
     <!-- the dropdown the user asked for -->
@@ -187,6 +214,21 @@
         </div>
       </div>
     </details>
+
+    <div class="chat" id="chat">
+      <div class="panel-title" style="color:var(--gl-dark)">Ask about this bill</div>
+      <div class="chat-suggest" id="chatSuggest">
+        <button type="button" class="chip">Why is this overbilled?</button>
+        <button type="button" class="chip">What should I push back on?</button>
+        <button type="button" class="chip">What would General Legal do differently?</button>
+      </div>
+      <div class="chat-log" id="chatLog"></div>
+      <form class="chat-input" id="chatForm">
+        <input id="chatText" autocomplete="off" placeholder="Ask a question about your bill..." />
+        <button type="submit" class="btn primary" id="chatSend">Ask</button>
+      </form>
+      <p class="disclaimer">Informational only, not legal advice. Answers are AI-generated and may be wrong.</p>
+    </div>
 
     <div class="cta-row">
       <button class="btn primary" id="ctaBtn">Get this work done at General Legal</button>
@@ -259,6 +301,10 @@ const DEMO = [
 /* ---------- state ---------- */
 let items = [];
 let matter = "";
+let aiNarrative = "";
+let billContext = "";
+let chatMessages = [];
+let chatBusy = false;
 let nextId = 1;
 const $ = s=>document.querySelector(s);
 
@@ -386,6 +432,10 @@ function compute(animate){
     $("#pitch").textContent="On a bill this small the hourly charge was actually competitive. Our flat fee would still have capped it up front with no risk of it ballooning.";
   }
 
+  const aiNoteEl=$("#aiNote");
+  if(aiNarrative){ aiNoteEl.innerHTML=`<b>What we noticed:</b> ${escapeHtml(aiNarrative)}`; aiNoteEl.classList.remove("hidden"); }
+  else aiNoteEl.classList.add("hidden");
+
   // line-by-line breakdown
   $("#theirRows").innerHTML = items.map(it=>{
     if(it.task==="discount"){
@@ -434,12 +484,13 @@ function renderCompare(){
 function reveal(){
   $("#uploadCard").classList.add("hidden");
   $("#revealCard").classList.remove("hidden");
+  chatMessages=[]; $("#chatLog").innerHTML=""; $("#chatText").value=""; $("#chatSuggest").style.display="";
   renderRows();
   compute(true);
   window.scrollTo({top:0,behavior:"smooth"});
 }
 function restart(){
-  items=[]; matter="";
+  items=[]; matter=""; aiNarrative=""; billContext=""; chatMessages=[];
   $("#revealCard").classList.add("hidden");
   $("#uploadCard").classList.remove("hidden");
   $("#status").textContent="";
@@ -464,19 +515,43 @@ async function parsePdf(file){
     });
   }
   // grab the matter number and the descriptive title that follows it
+  let mt="";
   const mi=lines.findIndex(l=>/^matter\b/i.test(l));
   if(mi>=0){
-    let mt=lines[mi].replace(/^matter[:\s]*/i,"").trim();
+    mt=lines[mi].replace(/^matter[:\s]*/i,"").trim();
     const next=(lines[mi+1]||"").trim();
     if(next && /[a-z]/i.test(next) && next.length<90 &&
        !/^(date|invoice|page|for professional|total|fees|due|remittance|professional summary)/i.test(next))
       mt += " | " + next;
-    matter=mt;
   } else {
     const re=lines.find(l=>/^re:/i.test(l));
-    matter = re ? re.replace(/^re:[\s]*/i,"").trim() : "";
+    mt = re ? re.replace(/^re:[\s]*/i,"").trim() : "";
   }
-  return linesToItems(lines);
+  return { items: linesToItems(lines), matter: mt, text: lines.join("\n") };
+}
+
+/* ---------- AI analysis (optional, via /api/analyze) ---------- */
+async function analyzeWithAI(text){
+  const r = await fetch("/api/analyze", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({text})
+  });
+  if(!r.ok) throw new Error("HTTP "+r.status);
+  return await r.json();
+}
+function applyAIResult(data){
+  matter = (data && data.matter) || "";
+  aiNarrative = (data && data.narrative) || "";
+  const valid = new Set(SERVICES.map(s=>s.key));
+  const lines = (data && data.line_items) || [];
+  items = lines.map(li=>mkItem(
+    li.description||"", li.hours||0, li.rate||0, li.amount||0,
+    valid.has(li.gl_service)?li.gl_service:"other", li.professional||""
+  ));
+  if(!items.length) items=[mkItem("",0,0,0,"other")];
+  $("#status").textContent="";
+  reveal();
 }
 // Strict money matcher. The lookbehind/lookahead reject digits embedded in
 // identifiers (matter no. 216563.00001), phone numbers (813.901.4180), dates,
@@ -561,32 +636,98 @@ function linesToItems(rawLines){
 }
 
 /* ---------- wiring ---------- */
-const drop=$("#drop");
+const drop=$("#drop"), fileInput=$("#file");
 ["dragenter","dragover"].forEach(e=>drop.addEventListener(e,ev=>{ev.preventDefault();drop.classList.add("drag");}));
 ["dragleave","drop"].forEach(e=>drop.addEventListener(e,ev=>{ev.preventDefault();drop.classList.remove("drag");}));
 drop.addEventListener("drop",ev=>{const f=ev.dataTransfer.files[0]; if(f) handleFile(f);});
-$("#file").addEventListener("change",e=>{const f=e.target.files[0]; if(f) handleFile(f);});
+drop.addEventListener("click",ev=>{ if(ev.target.id!=="chooseBtn") fileInput.click(); });
+$("#chooseBtn").addEventListener("click",ev=>{ ev.stopPropagation(); fileInput.click(); });
+fileInput.addEventListener("change",e=>{const f=e.target.files[0]; if(f) handleFile(f);});
 
 async function handleFile(f){
   if(f.type!=="application/pdf"){$("#status").textContent="Please choose a PDF invoice.";return;}
-  matter="";
+  matter=""; aiNarrative=""; billContext="";
+  let parsed;
   try{
-    const parsed=await parsePdf(f);
-    if(!parsed.length){
-      $("#status").textContent="Could not auto-detect line items in that PDF. Opening manual entry so you can add them.";
-      items=[mkItem("",0,0,0,"other")]; reveal(); $("#editDD").open=true;
-    }else{
-      items=parsed; reveal();
-    }
+    parsed=await parsePdf(f);
+    billContext=parsed.text||"";
   }catch(err){
     console.error(err);
     $("#status").textContent="Had trouble reading that PDF. Opening manual entry instead.";
+    items=[mkItem("",0,0,0,"other")]; reveal(); $("#editDD").open=true; return;
+  }
+  // Optional AI path: send extracted text to the backend for a smarter read.
+  const useAI = $("#useAI") && $("#useAI").checked;
+  if(useAI && parsed.text && parsed.text.trim().length>20){
+    $("#status").textContent="Analyzing with AI...";
+    try{
+      const data = await analyzeWithAI(parsed.text);
+      applyAIResult(data);
+      return;
+    }catch(err){
+      console.error(err);
+      $("#status").textContent="AI analysis was unavailable, so we used the built-in parser instead.";
+      // fall through to the local parser below
+    }
+  }
+  matter = parsed.matter;
+  if(!parsed.items.length){
+    $("#status").textContent="Could not auto-detect line items in that PDF. Opening manual entry so you can add them.";
     items=[mkItem("",0,0,0,"other")]; reveal(); $("#editDD").open=true;
+  }else{
+    items=parsed.items; reveal();
   }
 }
 function addRow(){ items.push(mkItem("",0,0,0,"other")); renderRows(); compute(false); }
 
-$("#demo").addEventListener("click",()=>{ matter="Sample matter (demonstration only)"; items=DEMO.map(d=>mkItem(d.desc,d.hours,d.rate,d.amount,d.task,d.who)); reveal(); });
+/* ---------- streaming Q&A chat (/api/ask) ---------- */
+function addBubble(role,text){
+  const el=document.createElement("div");
+  el.className="bubble "+(role==="user"?"user":"ai");
+  el.textContent=text;
+  $("#chatLog").appendChild(el);
+  $("#chatLog").scrollTop=$("#chatLog").scrollHeight;
+  return el;
+}
+async function sendChat(text){
+  text=(text||"").trim();
+  if(!text || chatBusy) return;
+  chatBusy=true; $("#chatSend").disabled=true;
+  $("#chatSuggest").style.display="none";
+  $("#chatText").value="";
+  chatMessages.push({role:"user",content:text});
+  addBubble("user",text);
+  const aiEl=addBubble("ai","…");
+  let acc="";
+  try{
+    const ctx=(matter?("Matter: "+matter+"\n"):"")+billContext;
+    const r=await fetch("/api/ask",{
+      method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({billText:ctx,messages:chatMessages})
+    });
+    if(!r.ok || !r.body) throw new Error("HTTP "+r.status);
+    const reader=r.body.getReader(); const dec=new TextDecoder();
+    while(true){
+      const {done,value}=await reader.read();
+      if(done) break;
+      acc+=dec.decode(value,{stream:true});
+      aiEl.textContent=acc;
+      $("#chatLog").scrollTop=$("#chatLog").scrollHeight;
+    }
+    if(!acc.trim()){ aiEl.textContent="Sorry, I could not generate an answer just now."; chatMessages.pop(); }
+    else chatMessages.push({role:"assistant",content:acc});
+  }catch(err){
+    console.error(err);
+    aiEl.textContent="The assistant is unavailable right now. Make sure the AI server is running, then try again.";
+    chatMessages.pop();
+  }finally{
+    chatBusy=false; $("#chatSend").disabled=false; $("#chatText").focus();
+  }
+}
+$("#chatForm").addEventListener("submit",e=>{ e.preventDefault(); sendChat($("#chatText").value); });
+$("#chatSuggest").querySelectorAll(".chip").forEach(b=>b.addEventListener("click",()=>sendChat(b.textContent)));
+
+$("#demo").addEventListener("click",()=>{ matter="Sample matter (demonstration only)"; aiNarrative=""; billContext=DEMO.map(d=>`${d.desc} | ${d.hours} hrs @ $${d.rate}/hr | $${d.amount}`).join("\n"); items=DEMO.map(d=>mkItem(d.desc,d.hours,d.rate,d.amount,d.task,d.who)); reveal(); });
 $("#addRow").addEventListener("click",addRow);
 $("#restartBtn").addEventListener("click",restart);
 $("#ctaBtn").addEventListener("click",()=>{ window.location.href="mailto:hello@general.legal?subject=Get%20this%20done%20at%20General%20Legal"; });

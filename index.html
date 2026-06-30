@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Call BS on Your Legal Bill | General Legal</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+  :root{
+    --ink:#0f172a; --ink-soft:#475569; --line:#e2e8f0; --bg:#f8fafc;
+    --gl:#0d9488; --gl-dark:#0f766e; --gl-soft:#ccfbf1;
+    --bs:#dc2626; --bs-soft:#fee2e2; --warn:#b45309; --warn-soft:#fef3c7;
+    --card:#ffffff; --shadow:0 1px 2px rgba(15,23,42,.06),0 8px 24px rgba(15,23,42,.06);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.5}
+  .wrap{max-width:960px;margin:0 auto;padding:0 20px}
+  header.hero{background:linear-gradient(135deg,#0f766e 0%,#134e4a 100%);color:#fff;padding:52px 0 64px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.3px;font-size:15px;opacity:.95}
+  .brand .dot{width:10px;height:10px;border-radius:50%;background:#5eead4}
+  h1{font-size:40px;line-height:1.1;margin:22px 0 10px;font-weight:800}
+  .sub{font-size:18px;max-width:640px;opacity:.92;margin:0}
+  main{margin-top:-36px;padding-bottom:80px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:26px;margin-bottom:22px}
+  .card h2{margin:0 0 4px;font-size:20px}
+  .card .hint{color:var(--ink-soft);font-size:14px;margin:0 0 18px}
+  .drop{border:2px dashed #cbd5e1;border-radius:14px;padding:40px 20px;text-align:center;cursor:pointer;transition:.15s;background:#fcfdfe}
+  .drop:hover,.drop.drag{border-color:var(--gl);background:var(--gl-soft)}
+  .drop .big{font-size:18px;font-weight:600}
+  .drop .small{color:var(--ink-soft);font-size:13px;margin-top:6px}
+  .drop input{display:none}
+  .status{font-size:13px;color:var(--ink-soft);margin-top:12px;min-height:18px}
+  .demolink{margin-top:14px;font-size:13px}
+  .demolink a{color:var(--gl-dark);font-weight:600;cursor:pointer;text-decoration:underline}
+  .btn{appearance:none;border:none;border-radius:10px;padding:12px 20px;font-weight:700;font-size:15px;cursor:pointer;transition:.15s}
+  .btn.primary{background:var(--gl);color:#fff}
+  .btn.primary:hover{background:var(--gl-dark)}
+  .btn.ghost{background:#f1f5f9;color:var(--ink);font-size:14px;padding:10px 16px}
+  .btn.ghost:hover{background:#e2e8f0}
+
+  /* dramatized reveal */
+  .reveal{text-align:center}
+  .bigrow{display:flex;align-items:stretch;justify-content:center;gap:0;flex-wrap:wrap;margin:6px 0 4px}
+  .bigblock{flex:1;min-width:240px;padding:22px 18px}
+  .bigblock .lbl{font-size:13px;text-transform:uppercase;letter-spacing:.6px;font-weight:700;color:var(--ink-soft)}
+  .bigblock .amt{font-size:46px;font-weight:800;margin-top:8px;font-variant-numeric:tabular-nums;line-height:1}
+  .bigblock.their .amt{color:var(--bs)}
+  .bigblock.ours .amt{color:var(--gl-dark)}
+  .vsbar{display:flex;align-items:center;font-weight:800;color:#94a3b8;font-size:14px;padding:0 6px}
+  .savebanner{background:#0f766e;color:#fff;border-radius:14px;padding:18px;margin:14px 0 6px;font-size:19px;font-weight:600}
+  .savebanner b{font-size:24px;font-weight:800}
+  .reveal .pitch{color:var(--ink-soft);font-size:15px;max-width:620px;margin:10px auto 0}
+
+  details.dd{margin-top:18px;border:1px solid var(--line);border-radius:12px;overflow:hidden;text-align:left}
+  details.dd>summary{cursor:pointer;list-style:none;padding:15px 18px;font-weight:700;font-size:15px;background:#f8fafc;display:flex;justify-content:space-between;align-items:center}
+  details.dd>summary::-webkit-details-marker{display:none}
+  details.dd>summary::after{content:"v";font-family:inherit;color:#94a3b8;transition:.2s;font-weight:700}
+  details.dd[open]>summary::after{transform:rotate(180deg)}
+  details.dd>summary:hover{background:#f1f5f9}
+  .dd-body{padding:6px 18px 18px}
+
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-soft);font-weight:700}
+  td.num,th.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .compare .gl{color:var(--gl-dark);font-weight:800}
+  .compare .big{color:var(--bs)}
+  .compare .save{color:var(--gl-dark);font-weight:700}
+  .compare tr.head-note td{border:none;color:var(--ink-soft);font-size:12px;padding-top:0}
+
+  /* editable items */
+  .dol{color:#94a3b8;margin-right:1px}
+  input.cell,select.cell{border:1px solid transparent;background:transparent;padding:6px;border-radius:8px;font:inherit;color:inherit}
+  input.cell{width:100%}
+  input.cell:focus,select.cell:focus{border-color:var(--gl);background:#fff;outline:none}
+  input.cell.amt{text-align:right;width:78px}
+  select.cell{border:1px solid var(--line);background:#fff;font-size:12px;max-width:230px}
+  td.del{width:30px;text-align:center}
+  .x{cursor:pointer;color:#cbd5e1;font-weight:700;border:none;background:none;font-size:16px}
+  .x:hover{color:var(--bs)}
+  .row-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;align-items:center}
+
+  /* line-by-line redline */
+  .matterbar{font-size:13px;color:var(--ink-soft);margin:0 0 12px;padding:10px 12px;background:#f8fafc;border:1px solid var(--line);border-radius:10px}
+  .matterbar b{color:var(--ink)}
+  .their .desc{font-weight:600}
+  .their .meta{font-size:12px;color:var(--ink-soft);margin-top:3px}
+  .credit{color:var(--gl-dark)}
+  .badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;margin:3px 4px 0 0;white-space:nowrap}
+  .badge.bs{background:var(--bs-soft);color:var(--bs)}
+  .badge.warn{background:var(--warn-soft);color:var(--warn)}
+  .badge.ok{background:var(--gl-soft);color:var(--gl-dark)}
+  .badge.free{background:var(--gl-soft);color:var(--gl-dark)}
+  .glquote{background:#f0fdfa;border:1px solid #99f6e4;border-radius:12px;padding:14px 16px;margin-top:14px}
+  .glline{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed #99f6e4;font-size:14px}
+  .glline:last-of-type{border-bottom:none}
+  .glline .fee{font-weight:800;color:var(--gl-dark)}
+  .gltotal{display:flex;justify-content:space-between;padding-top:11px;margin-top:5px;border-top:2px solid var(--gl);font-weight:800;font-size:16px;color:var(--gl-dark)}
+  .freenote{font-size:12px;color:var(--gl-dark);margin-top:9px}
+
+  .cta-row{margin-top:22px}
+  .disclaimer{font-size:12px;color:var(--ink-soft);margin-top:16px;line-height:1.5}
+  .hidden{display:none}
+  footer{text-align:center;font-size:13px;color:var(--ink-soft);padding:30px 0 50px}
+  @media(max-width:560px){h1{font-size:30px}.bigblock .amt{font-size:36px}.vsbar{width:100%;justify-content:center;padding:4px 0}}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <div class="brand"><span class="dot"></span> GENERAL&nbsp;LEGAL</div>
+    <h1>Call BS on your legal bill.</h1>
+    <p class="sub">Upload an invoice from your law firm. We will tell you, in plain numbers, what that same work costs at General Legal's flat fees.</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- upload -->
+  <section class="card" id="uploadCard">
+    <h2>Upload your bill</h2>
+    <p class="hint">A PDF invoice from your firm. Everything is read right here in your browser. Your bill is never sent to a server.</p>
+    <label class="drop" id="drop">
+      <div class="big">Drop your PDF here, or click to choose</div>
+      <div class="small">We do the math the moment it lands.</div>
+      <input type="file" id="file" accept="application/pdf" />
+    </label>
+    <div class="status" id="status"></div>
+    <div class="demolink">No bill handy? <a id="demo">Run a sample bill instead.</a></div>
+  </section>
+
+  <!-- dramatized reveal -->
+  <section class="card reveal hidden" id="revealCard">
+    <div class="bigrow">
+      <div class="bigblock their">
+        <div class="lbl">Your firm charged you</div>
+        <div class="amt" id="bigTheirs">$0</div>
+      </div>
+      <div class="vsbar">vs</div>
+      <div class="bigblock ours">
+        <div class="lbl">General Legal would charge</div>
+        <div class="amt" id="bigOurs">$0</div>
+      </div>
+    </div>
+    <div class="savebanner" id="saveBanner"></div>
+    <p class="pitch" id="pitch"></p>
+
+    <!-- the dropdown the user asked for -->
+    <details class="dd" id="compareDD">
+      <summary>See what our services cost vs the average BigLaw bill</summary>
+      <div class="dd-body">
+        <table class="compare">
+          <thead>
+            <tr><th>Service</th><th class="num">General Legal</th><th class="num">Average BigLaw</th><th class="num">You save</th></tr>
+          </thead>
+          <tbody id="compareRows"></tbody>
+        </table>
+        <p class="disclaimer">Average BigLaw figures are estimates for the same deliverable at a typical $600 to $1,000 hourly rate. General Legal prices are our published flat fees.</p>
+      </div>
+    </details>
+
+    <!-- secondary: line-by-line BS breakdown for this bill -->
+    <details class="dd" id="breakdownDD">
+      <summary>Show the line-by-line breakdown for your bill</summary>
+      <div class="dd-body">
+        <div class="matterbar hidden" id="matterbar"></div>
+        <table class="their">
+          <thead><tr><th>Line item and our verdict</th><th class="num">Their charge</th></tr></thead>
+          <tbody id="theirRows"></tbody>
+        </table>
+        <div class="glquote" id="glQuote"></div>
+      </div>
+    </details>
+
+    <!-- secondary: edit parsed items -->
+    <details class="dd" id="editDD">
+      <summary>Review or edit the parsed line items</summary>
+      <div class="dd-body">
+        <p class="hint">Change the matched General Legal service if we guessed wrong. The numbers update as you go.</p>
+        <table>
+          <thead>
+            <tr><th>Description</th><th class="num">Hrs</th><th class="num">Rate</th><th class="num">Amount</th><th>General Legal service</th><th class="del"></th></tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+        <div class="row-actions">
+          <button class="btn ghost" id="addRow">Add line</button>
+        </div>
+      </div>
+    </details>
+
+    <div class="cta-row">
+      <button class="btn primary" id="ctaBtn">Get this work done at General Legal</button>
+      <button class="btn ghost" id="restartBtn">Try another bill</button>
+    </div>
+    <p class="disclaimer">
+      This is an illustrative comparison, not legal advice or a binding quote. Flat fees shown are General
+      Legal's standard published rates for the matched service type; complex or high-volume matters may be
+      quoted differently. Bill parsing is automated and may misread line items, so review them before relying on this.
+    </p>
+  </section>
+</main>
+
+<footer>General Legal. Flat-fee legal work without the BigLaw markup.</footer>
+
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+/* ---------- General Legal flat-fee schedule (from general.legal/pricing) ---------- */
+const SERVICES = [
+  {key:"review_short", label:"Contract review, short (3 pages or fewer)",            fee:250,  kw:[]},
+  {key:"review_std",   label:"Contract review, standard (3 to 25 pages)",           fee:500,  kw:["review of contract","review contract","contract review","review agreement","review and analyze","reviewing and analyzing","reviewed","initial review","review request","review proposed","analyze agency report","review agency","review gao decision","review of agreement","markup"]},
+  {key:"review_neg",   label:"Contract review plus negotiation (unlimited turns)",  fee:1000, kw:["negotiat"]},
+  {key:"review_long",  label:"Long or non-standard contract (25+ pages)",           fee:1000, kw:[]},
+  {key:"draft_small",  label:"Smaller drafting project",                            fee:1500, kw:["draft protest","draft comments","draft response","draft objection","draft and file","draft document request","draft motion","drafting","prepare motion","memorandum of law","draft a "]},
+  {key:"draft_found",  label:"Foundational document drafting (ToS, Privacy, MSA, DPA, BAA)", fee:2000, kw:["terms of service","privacy policy","master services agreement","data processing"]},
+  {key:"research",     label:"Basic research memo",                                 fee:1000, kw:["research","case law","caselaw","westlaw","lexis","prepare analysis","performed research"]},
+  {key:"playbook",     label:"Playbook development",                                fee:1500, kw:["playbook"]},
+  {key:"nda",          label:"NDA, confidentiality, or IP assignment",              fee:250,  kw:["nda","non-disclosure","nondisclosure","confidentiality"]},
+  {key:"offer",        label:"Offer letter",                                        fee:250,  kw:["offer letter","offer terms"]},
+  {key:"safe",         label:"SAFE (draft)",                                        fee:250,  kw:["safe"]},
+  {key:"advisor",      label:"Advisor agreement (draft)",                           fee:250,  kw:["advisor agreement"]},
+  {key:"side_letter",  label:"Side letter (draft)",                                 fee:500,  kw:["side letter"]},
+  {key:"ic",           label:"Independent contractor agreement (draft)",            fee:500,  kw:["independent contractor"]},
+  {key:"separation",   label:"Separation or termination package",                  fee:500,  kw:["separation agreement","termination package"]},
+  {key:"exec_emp",     label:"Executive employment agreement",                      fee:1500, kw:["executive employment"]},
+  {key:"handbook",     label:"Employee handbook",                                   fee:2500, kw:["employee handbook","handbook"]},
+  {key:"other_doc",    label:"Other agreement (MOU, LOI, referral)",                fee:1000, kw:["mou","letter of intent","referral agreement","memorandum of understanding"]},
+  {key:"bundled",      label:"Included free in the flat fee (email, call, filing, internal)", fee:0, kw:["email","e-mail","correspond","telephone","phone","conference","meeting","confer","internal discussion","filed","docket","circulate","retrieve","discuss","meet with"]},
+  {key:"other",        label:"Other or uncategorized",                              fee:250,  kw:[]},
+  {key:"discount",     label:"Credit or discount on their bill",                    fee:0,    kw:[]}
+];
+const feeMap = Object.fromEntries(SERVICES.map(s=>[s.key,s.fee]));
+const labelOf = k => (SERVICES.find(s=>s.key===k)||{}).label || k;
+const NO_DELIVERABLE = new Set(["bundled","discount",""]);
+
+/* ---------- General Legal vs average BigLaw (for the dropdown) ---------- */
+const COMPARE = [
+  {svc:"NDA or confidentiality agreement", gl:250,  big:1500},
+  {svc:"Short contract review",            gl:250,  big:1500},
+  {svc:"Standard contract review",         gl:500,  big:3500},
+  {svc:"Contract review plus negotiation", gl:1000, big:7500},
+  {svc:"Offer letter",                     gl:250,  big:1200},
+  {svc:"Basic research memo",              gl:1000, big:5500},
+  {svc:"Smaller drafting project",         gl:1500, big:8000},
+  {svc:"Foundational docs (ToS, Privacy, MSA)", gl:2000, big:15000},
+  {svc:"Employee handbook",                gl:2500, big:12000}
+];
+
+/* ---------- a generic demo bill (not a real client matter) ---------- */
+const DEMO = [
+  {desc:"Review and markup vendor SaaS subscription agreement; correspondence with counterparty.", who:"Senior Associate", hours:4.2, rate:750, amount:3150},
+  {desc:"Draft mutual non-disclosure agreement.", who:"Associate", hours:1.5, rate:750, amount:1125},
+  {desc:"Legal research re: enforceability of limitation of liability clause; prepare memo.", who:"Associate", hours:3.0, rate:650, amount:1950},
+  {desc:"Telephone conference with client regarding contract terms.", who:"Partner", hours:0.8, rate:950, amount:760},
+  {desc:"Emails to client and opposing counsel regarding revisions.", who:"Associate", hours:1.1, rate:650, amount:715}
+];
+
+/* ---------- state ---------- */
+let items = [];
+let matter = "";
+let nextId = 1;
+const $ = s=>document.querySelector(s);
+
+/* ---------- classification ---------- */
+// Classification leans favorably for General Legal: when a line could plausibly
+// map to more than one service, we pick the cheaper, defensible one (the user
+// can always bump it up with the dropdown). Generic "review / analyze / research"
+// defaults to the short contract review tier rather than a pricier research memo,
+// while genuine drafting and foundational work keep their real prices. Detection
+// is by content, not leading word, so a leading professional name does not throw
+// it off.
+function classify(desc){
+  const d=(desc||"").toLowerCase();
+  const foundational=/(terms of service|privacy policy|master services agreement|\bmsa\b|data processing|\bdpa\b|\bbaa\b)/.test(d);
+  const cheapDoc=
+    /\bnda\b|non-disclosure|nondisclosure|confidential/.test(d) ? "nda" :
+    /offer letter|offer terms/.test(d)                          ? "offer" :
+    /\bsafe\b/.test(d)                                          ? "safe" :
+    /advisor agreement/.test(d)                                 ? "advisor" :
+    /independent contractor/.test(d)                            ? "ic" :
+    /employee handbook|\bhandbook\b/.test(d)                    ? "handbook" :
+    /separation agreement|termination package/.test(d)          ? "separation" : null;
+  // Real drafting: a "draft <document>" or a "prepare/file <motion/brief>" nearby.
+  // Plain "prepare analysis" or an incidental noun does NOT count as drafting.
+  const draftVerb=/\b(draft|drafting|drafted|redraft|re-draft)\b/.test(d);
+  const draftObj=/\b(agreement|contract|motion|brief|pleading|complaint|answer|amendment|protest|objection|response|comments?|memorandum of law|policy|side letter|engagement letter|demand letter|document request)\b/.test(d);
+  const prepFileDoc=/\b(prepare|preparing|prepared|file|filing)\w*\s+(?:and\s+\w+\s+)?(?:a\s+|an\s+|the\s+)?(motion|brief|pleading|complaint|answer|protest|objection|response|amendment|document request)\b/.test(d);
+  const hasDraft=(draftVerb&&draftObj)||prepFileDoc;
+  const hasMemo=/\b(memo|memorandum)\b/.test(d) && !/memorandum of law/.test(d);
+  const hasReview=/review|analy|research|examine|assess|markup|redline|diligence|consider|evaluate/.test(d);
+  const hasComm=/\b(e-?mail|correspond|telephone|phone|conference|call|confer|conferred|meet|meeting|discuss|discussion|internal|circulat|retriev|filed|filing|docket|attention to|attend)\b/.test(d);
+  // Communications / admin only, with no substantive deliverable: bundled free.
+  if(hasComm && !hasDraft && !hasReview && !hasMemo && !cheapDoc && !foundational) return "bundled";
+  if(draftVerb && foundational) return "draft_found";
+  if(cheapDoc) return cheapDoc;
+  if(hasDraft) return "draft_small";
+  if(hasMemo) return "research";
+  if(hasReview) return "review_short";
+  return "other";
+}
+
+/* ---------- BS detector ---------- */
+function flags(it){
+  const out=[]; const d=(it.desc||"").toLowerCase();
+  if(it.task==="discount"||it.amount<=0) return out;
+  if(it.rate>=900)      out.push({t:"bs",  x:`Top-of-market rate, $${Math.round(it.rate)}/hr`});
+  else if(it.rate>=450) out.push({t:"bs",  x:`BigLaw hourly rate, $${Math.round(it.rate)}/hr`});
+  else if(it.rate>=300) out.push({t:"warn",x:`$${Math.round(it.rate)}/hr`});
+  const conj=(d.match(/;|\band\b/g)||[]).length;
+  if(it.hours>=2 && conj>=2) out.push({t:"bs",x:"Block billed, multiple tasks in one entry"});
+  if(it.hours>=5) out.push({t:"bs",x:`${it.hours} hours on a single entry`});
+  if(/(attention to|various|miscellaneous|strategiz|work on|general matters|review file)/.test(d))
+    out.push({t:"warn",x:"Vague entry"});
+  if(/internal (discussion|conference|meeting|call)/.test(d) && it.amount>0)
+    out.push({t:"warn",x:"Internal firm time billed to client"});
+  return out;
+}
+
+const money = n => (n<0?"-$":"$")+Math.abs(Math.round(n)).toLocaleString("en-US");
+function escapeHtml(s){return String(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function mkItem(desc,hours,rate,amount,task,who){
+  return {id:nextId++,desc,who:who||"",hours:hours||0,rate:rate||0,amount:amount||0,task:task||classify(desc)};
+}
+
+/* ---------- editable items table ---------- */
+function taskOptions(sel){
+  return SERVICES.filter(s=>s.key!=="discount")
+    .map(s=>`<option value="${s.key}" ${s.key===sel?"selected":""}>${s.label}${s.fee?` (${money(s.fee)})`:""}</option>`).join("");
+}
+function renderRows(){
+  $("#rows").innerHTML = items.map(it=>{
+    if(it.task==="discount"){
+      return `<tr data-id="${it.id}">
+        <td><input class="cell" data-f="desc" value="${escapeHtml(it.desc)}"/></td>
+        <td class="num"></td><td class="num"></td>
+        <td class="num"><span class="dol">$</span><input class="cell amt" data-f="amount" value="${it.amount}"/></td>
+        <td><em style="color:var(--gl-dark);font-size:12px">Credit on their bill</em></td>
+        <td class="del"><button class="x">&times;</button></td>
+      </tr>`;
+    }
+    return `<tr data-id="${it.id}">
+      <td><input class="cell" data-f="desc" value="${escapeHtml(it.desc)}" placeholder="e.g. Draft mutual NDA"/></td>
+      <td class="num"><input class="cell amt" data-f="hours" value="${it.hours||""}" style="width:50px"/></td>
+      <td class="num"><span class="dol">$</span><input class="cell amt" data-f="rate" value="${it.rate||""}" style="width:64px"/></td>
+      <td class="num"><span class="dol">$</span><input class="cell amt" data-f="amount" value="${it.amount||""}"/></td>
+      <td><select class="cell taskpick" data-f="task">${taskOptions(it.task)}</select></td>
+      <td class="del"><button class="x">&times;</button></td>
+    </tr>`;
+  }).join("");
+  $("#rows").querySelectorAll("input.cell,select.cell").forEach(el=>{
+    el.addEventListener("input",e=>{
+      const tr=e.target.closest("tr"); const it=items.find(i=>i.id==tr.dataset.id);
+      const f=e.target.dataset.f; let v=e.target.value;
+      if(["hours","rate","amount"].includes(f)) v=parseFloat(String(v).replace(/[^0-9.\-]/g,""))||0;
+      it[f]=v; compute(false);
+    });
+  });
+  $("#rows").querySelectorAll(".x").forEach(b=>b.addEventListener("click",e=>{
+    const id=e.target.closest("tr").dataset.id; items=items.filter(i=>i.id!=id); renderRows(); compute(false);
+  }));
+}
+
+/* ---------- compute + render the reveal ---------- */
+function compute(animate){
+  let theirs=0; const seen=new Set(); const deliverables=[];
+  items.forEach(it=>{
+    theirs+=it.amount;
+    if(!NO_DELIVERABLE.has(it.task) && !seen.has(it.task)){
+      seen.add(it.task);
+      deliverables.push({key:it.task,label:labelOf(it.task),fee:feeMap[it.task]||0});
+    }
+  });
+  const gl=deliverables.reduce((s,d)=>s+d.fee,0);
+  const save=theirs-gl;
+  const pct=theirs>0?Math.round(Math.abs(save)/theirs*100):0;
+
+  setBig($("#bigTheirs"),theirs,animate);
+  setBig($("#bigOurs"),gl,animate);
+
+  if(save>=0){
+    $("#saveBanner").innerHTML=`You would have kept <b>${money(save)}</b>. That is about ${pct}% less.`;
+    $("#pitch").textContent="Same work. No hourly meter, no block billing, no surprise invoice. Just one flat fee agreed up front.";
+  }else{
+    $("#saveBanner").innerHTML=`This small bill came in under our flat-fee floor by <b>${money(-save)}</b>.`;
+    $("#pitch").textContent="On a bill this small the hourly charge was actually competitive. Our flat fee would still have capped it up front with no risk of it ballooning.";
+  }
+
+  // line-by-line breakdown
+  $("#theirRows").innerHTML = items.map(it=>{
+    if(it.task==="discount"){
+      return `<tr><td><div class="desc credit">${escapeHtml(it.desc)}</div></td><td class="num"><span class="credit">${money(it.amount)}</span></td></tr>`;
+    }
+    const fl=flags(it);
+    let badges=fl.map(f=>`<span class="badge ${f.t}">${f.x}</span>`).join("");
+    if(it.task==="bundled") badges+=`<span class="badge free">Included free at General Legal</span>`;
+    if(!badges) badges=`<span class="badge ok">looks fair</span>`;
+    const meta=[it.who,it.hours?`${it.hours} hrs`:null,it.rate?`$${Math.round(it.rate)}/hr`:null].filter(Boolean).join("  &middot;  ");
+    const amt = it.amount>0 ? money(it.amount) : (it.rate?`<span class="credit">No charge</span>`:money(it.amount));
+    return `<tr><td><div class="desc">${escapeHtml(it.desc)}</div><div class="meta">${meta||"&nbsp;"}</div><div>${badges}</div></td><td class="num">${amt}</td></tr>`;
+  }).join("");
+
+  const bundledCount = items.filter(i=>i.task==="bundled").length;
+  let q = deliverables.map(d=>`<div class="glline"><span>${d.label}</span><span class="fee">${money(d.fee)}</span></div>`).join("");
+  if(!deliverables.length) q=`<div class="glline"><span>No billable deliverable detected</span><span class="fee">$0</span></div>`;
+  q += `<div class="gltotal"><span>General Legal total</span><span class="fee">${money(gl)}</span></div>`;
+  if(bundledCount) q += `<div class="freenote">Plus ${bundledCount} email, call, filing, and internal-time ${bundledCount===1?"entry":"entries"} that General Legal bundles into the flat fee at no extra charge.</div>`;
+  $("#glQuote").innerHTML = q;
+
+  const mb=$("#matterbar");
+  if(matter){ mb.innerHTML=`<b>Matter:</b> ${escapeHtml(matter)}`; mb.classList.remove("hidden"); }
+  else mb.classList.add("hidden");
+}
+
+function setBig(el,val,animate){
+  if(!animate){ el.textContent=money(val); return; }
+  const start=performance.now(), dur=950;
+  (function tick(now){
+    const p=Math.min(1,(now-start)/dur), e=1-Math.pow(1-p,3);
+    el.textContent=money(val*e);
+    if(p<1) requestAnimationFrame(tick);
+  })(start);
+}
+
+function renderCompare(){
+  $("#compareRows").innerHTML = COMPARE.map(c=>`
+    <tr><td>${c.svc}</td>
+      <td class="num gl">${money(c.gl)}</td>
+      <td class="num big">${money(c.big)}</td>
+      <td class="num save">${money(c.big-c.gl)}</td></tr>`).join("");
+}
+
+/* ---------- reveal flow ---------- */
+function reveal(){
+  $("#uploadCard").classList.add("hidden");
+  $("#revealCard").classList.remove("hidden");
+  renderRows();
+  compute(true);
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function restart(){
+  items=[]; matter="";
+  $("#revealCard").classList.add("hidden");
+  $("#uploadCard").classList.remove("hidden");
+  $("#status").textContent="";
+  $("#file").value="";
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+/* ---------- PDF parsing ---------- */
+async function parsePdf(file){
+  $("#status").textContent="Reading PDF...";
+  const buf=await file.arrayBuffer();
+  const pdf=await pdfjsLib.getDocument({data:buf}).promise;
+  const lines=[];
+  for(let p=1;p<=pdf.numPages;p++){
+    const page=await pdf.getPage(p);
+    const tc=await page.getTextContent();
+    const byY={};
+    tc.items.forEach(it=>{ if(!it.str.trim()) return; const y=Math.round(it.transform[5]); (byY[y]=byY[y]||[]).push({x:it.transform[4],s:it.str}); });
+    Object.keys(byY).map(Number).sort((a,b)=>b-a).forEach(y=>{
+      const text=byY[y].sort((a,b)=>a.x-b.x).map(o=>o.s).join(" ").replace(/\s+/g," ").trim();
+      if(text) lines.push(text);
+    });
+  }
+  // grab the matter number and the descriptive title that follows it
+  const mi=lines.findIndex(l=>/^matter\b/i.test(l));
+  if(mi>=0){
+    let mt=lines[mi].replace(/^matter[:\s]*/i,"").trim();
+    const next=(lines[mi+1]||"").trim();
+    if(next && /[a-z]/i.test(next) && next.length<90 &&
+       !/^(date|invoice|page|for professional|total|fees|due|remittance|professional summary)/i.test(next))
+      mt += " | " + next;
+    matter=mt;
+  } else {
+    const re=lines.find(l=>/^re:/i.test(l));
+    matter = re ? re.replace(/^re:[\s]*/i,"").trim() : "";
+  }
+  return linesToItems(lines);
+}
+// Strict money matcher. The lookbehind/lookahead reject digits embedded in
+// identifiers (matter no. 216563.00001), phone numbers (813.901.4180), dates,
+// and account numbers, which is what was inflating totals into the $400k range.
+const MONEY=/(?<![\d.\/-])\$?\s?(\d{1,3}(?:,\d{3})+(?:\.\d{2})?|\d{1,6}\.\d{2})(?!\d)/g;
+function nums(line){ return [...line.matchAll(MONEY)].map(m=>parseFloat(m[1].replace(/,/g,""))); }
+
+// A line item's description wraps across several visual rows in the PDF, but the
+// date / hours / rate / amount sit on the first row only. Stitch each entry's
+// continuation rows back onto its first row so classification sees the FULL
+// description (e.g. the "draft response" buried two rows down).
+function mergeEntries(rawLines){
+  const dateRe=/^\s*\d{1,2}\/\d{1,2}\/\d{2,4}/;
+  const skip=/^(aspetto|holland|p\.o\.|email |www\.|invoice |page |matter |re:|for professional|date\s+professional|hours\s+rate|professional summary|total\b|fees for|remittance|due on receipt|wire:|ach:|mail:|swift|routing|account|if the current bill)/i;
+  const idRe=/^\d{6}\.\d{4,6}\b/;
+  const discRe=/\(\s*\$?\s*[\d,]+\.\d{2}\s*\)/;
+  const out=[]; let cur=null;
+  const flush=()=>{ if(cur!=null){ out.push(cur); cur=null; } };
+  for(const raw of rawLines){
+    const line=(raw||"").trim();
+    if(!line) continue;
+    if(/outstanding invoice|statement of account|aging summary|prior balance|balance forward/i.test(line)) break;
+    if(discRe.test(line) && /discount|courtesy|credit|write[\s-]?off/i.test(line)){ flush(); out.push(line); continue; }
+    if(dateRe.test(line)){ flush(); cur=line; continue; }
+    // continuation text: no date, not a header, and carries no money column
+    if(cur!=null && !skip.test(line) && !idRe.test(line) && nums(line).length===0){ cur+=" "+line; continue; }
+    flush();
+  }
+  flush();
+  return out;
+}
+
+function linesToItems(rawLines){
+  const lines=mergeEntries(rawLines);
+  const out=[]; const seen=new Set();
+  // The real time entries on these invoices each begin with a date. If any
+  // such rows exist, parse ONLY those, which skips headers, payment info,
+  // "Professional Summary" rollups, and "Total" lines that would double count.
+  const dateRe=/^\s*\d{1,2}\/\d{1,2}\/\d{2,4}/;
+  const useDateRows=lines.some(l=>dateRe.test(l));
+  for(const line of lines){
+    // Stop before the prior-balance / aging table: everything after it lists
+    // OTHER invoices, not charges on this matter.
+    if(/outstanding invoice|statement of account|aging summary|prior balance|balance forward/i.test(line)) break;
+    const key=line.trim();
+    if(seen.has(key)) continue;       // a line repeated across pages is counted once
+    // Capture a courtesy discount / credit. Identified by the parenthesized
+    // accounting notation, e.g. "Less Courtesy Discount ($1,250.00)", so the
+    // "10% discount if paid within 30 days" promo line is NOT mistaken for one.
+    if(/discount|courtesy|write[\s-]?off|credit memo|\bcredit\b/i.test(line)){
+      const par=line.match(/\(\s*\$?\s*([\d,]+\.\d{2})\s*\)/);
+      if(par){
+        seen.add(key);
+        const d=line.replace(MONEY,"").replace(/[()]/g,"").replace(/\s{2,}/g," ").trim();
+        out.push(mkItem(d||"Discount",0,0,-parseFloat(par[1].replace(/,/g,"")),"discount"));
+        continue;
+      }
+    }
+    const isDate=dateRe.test(line);
+    if(useDateRows && !isDate) continue;
+    const n=nums(line);
+    if(!n.length) continue;
+    if(!useDateRows && n.length<3) continue; // generic mode needs an hrs/rate/amount triple
+    const noCharge=/no charge|\bn\/c\b/i.test(line);
+    const amount=noCharge?0:n[n.length-1];          // rightmost column is the amount
+    let rate=0;
+    for(let i=n.length-(noCharge?1:2); i>=0; i--){ if(n[i]>=50 && n[i]<=2000){ rate=n[i]; break; } }
+    let hours=0;
+    const hM=line.match(/\b(\d{1,2}(?:\.\d{1,2})?)\s*(?:hrs?|hours?)\b/i);
+    if(hM) hours=parseFloat(hM[1]);
+    else for(const x of n){ if(x>0 && x<=24 && x!==amount && x!==rate){ hours=x; break; } }
+    if(amount<=0 && !noCharge) continue;
+    let desc=line.replace(dateRe,"").replace(MONEY,"").replace(/\bno charge\b/ig,"")
+                 .replace(/\s{2,}/g," ").replace(/^[\s.\-|]+|[\s.\-|]+$/g,"").trim();
+    // A genuine time entry has a real description. This rejects prior-invoice
+    // aging rows whose only "description" is an invoice number (e.g. "33321984").
+    if((desc.match(/[a-z]/gi)||[]).length<3) continue;
+    seen.add(key);
+    out.push(mkItem(desc,hours,rate,amount));
+  }
+  return out;
+}
+
+/* ---------- wiring ---------- */
+const drop=$("#drop");
+["dragenter","dragover"].forEach(e=>drop.addEventListener(e,ev=>{ev.preventDefault();drop.classList.add("drag");}));
+["dragleave","drop"].forEach(e=>drop.addEventListener(e,ev=>{ev.preventDefault();drop.classList.remove("drag");}));
+drop.addEventListener("drop",ev=>{const f=ev.dataTransfer.files[0]; if(f) handleFile(f);});
+$("#file").addEventListener("change",e=>{const f=e.target.files[0]; if(f) handleFile(f);});
+
+async function handleFile(f){
+  if(f.type!=="application/pdf"){$("#status").textContent="Please choose a PDF invoice.";return;}
+  matter="";
+  try{
+    const parsed=await parsePdf(f);
+    if(!parsed.length){
+      $("#status").textContent="Could not auto-detect line items in that PDF. Opening manual entry so you can add them.";
+      items=[mkItem("",0,0,0,"other")]; reveal(); $("#editDD").open=true;
+    }else{
+      items=parsed; reveal();
+    }
+  }catch(err){
+    console.error(err);
+    $("#status").textContent="Had trouble reading that PDF. Opening manual entry instead.";
+    items=[mkItem("",0,0,0,"other")]; reveal(); $("#editDD").open=true;
+  }
+}
+function addRow(){ items.push(mkItem("",0,0,0,"other")); renderRows(); compute(false); }
+
+$("#demo").addEventListener("click",()=>{ matter="Sample matter (demonstration only)"; items=DEMO.map(d=>mkItem(d.desc,d.hours,d.rate,d.amount,d.task,d.who)); reveal(); });
+$("#addRow").addEventListener("click",addRow);
+$("#restartBtn").addEventListener("click",restart);
+$("#ctaBtn").addEventListener("click",()=>{ window.location.href="mailto:hello@general.legal?subject=Get%20this%20done%20at%20General%20Legal"; });
+
+renderCompare();
+</script>
+</body>
+</html>

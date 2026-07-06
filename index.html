@@ -5,20 +5,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Call BS on Your Legal Bill | General Legal</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<link rel="icon" href="logo_mark_dark.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <style>
   :root{
-    --ink:#0f172a; --ink-soft:#475569; --line:#e2e8f0; --bg:#f8fafc;
-    --gl:#0d9488; --gl-dark:#0f766e; --gl-soft:#ccfbf1;
-    --bs:#dc2626; --bs-soft:#fee2e2; --warn:#b45309; --warn-soft:#fef3c7;
-    --card:#ffffff; --shadow:0 1px 2px rgba(15,23,42,.06),0 8px 24px rgba(15,23,42,.06);
+    /* General Legal brand palette: warm cream, warm ink, bronze/gold accent */
+    --ink:#211f1c; --ink-soft:#6f6a62; --line:#e6e0d8; --bg:#f4f0ec;
+    --gl:#a57e47; --gl-dark:#8a6838; --gl-soft:#efe6d7;
+    --bs:#b4402f; --bs-soft:#f6e2dc; --warn:#8a6838; --warn-soft:#f3e7cf;
+    --card:#ffffff; --shadow:0 1px 2px rgba(33,31,28,.05),0 10px 30px rgba(33,31,28,.06);
   }
   *{box-sizing:border-box}
-  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.5}
+  body{margin:0;font-family:"Geist",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.5}
   .wrap{max-width:960px;margin:0 auto;padding:0 20px}
-  header.hero{background:linear-gradient(135deg,#0f766e 0%,#134e4a 100%);color:#fff;padding:52px 0 64px}
-  .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.3px;font-size:15px;opacity:.95}
-  .brand .dot{width:10px;height:10px;border-radius:50%;background:#5eead4}
-  h1{font-size:40px;line-height:1.1;margin:22px 0 10px;font-weight:800}
+  header.hero{background:#211f1c;color:#f4f0ec;padding:44px 0 60px}
+  .brand{display:flex;align-items:center}
+  .brand img{height:26px;width:auto;display:block}
+  h1{font-size:40px;line-height:1.08;margin:26px 0 12px;font-weight:700;letter-spacing:-.5px}
   .sub{font-size:18px;max-width:640px;opacity:.92;margin:0}
   main{margin-top:-36px;padding-bottom:80px}
   .card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:26px;margin-bottom:22px}
@@ -35,11 +40,11 @@
   .demolink a{color:var(--gl-dark);font-weight:600;cursor:pointer;text-decoration:underline}
   .aitoggle{display:flex;gap:9px;align-items:flex-start;margin-top:14px;font-size:13px;color:var(--ink-soft);cursor:pointer;line-height:1.45}
   .aitoggle input{margin-top:2px;flex:0 0 auto}
-  .ainote{background:#f0fdfa;border:1px solid #99f6e4;border-radius:12px;padding:14px 16px;margin-top:16px;font-size:14px;color:var(--ink)}
+  .ainote{background:var(--gl-soft);border:1px solid #e0cfa8;border-radius:12px;padding:14px 16px;margin-top:16px;font-size:14px;color:var(--ink)}
   .ainote b{color:var(--gl-dark)}
   .btn{appearance:none;border:none;border-radius:10px;padding:12px 20px;font-weight:700;font-size:15px;cursor:pointer;transition:.15s}
-  .btn.primary{background:var(--gl);color:#fff}
-  .btn.primary:hover{background:var(--gl-dark)}
+  .btn.primary{background:var(--ink);color:#f4f0ec}
+  .btn.primary:hover{background:#3a352f}
   .btn.ghost{background:#f1f5f9;color:var(--ink);font-size:14px;padding:10px 16px}
   .btn.ghost:hover{background:#e2e8f0}
 
@@ -48,12 +53,12 @@
   .bigrow{display:flex;align-items:stretch;justify-content:center;gap:0;flex-wrap:wrap;margin:6px 0 4px}
   .bigblock{flex:1;min-width:240px;padding:22px 18px}
   .bigblock .lbl{font-size:13px;text-transform:uppercase;letter-spacing:.6px;font-weight:700;color:var(--ink-soft)}
-  .bigblock .amt{font-size:46px;font-weight:800;margin-top:8px;font-variant-numeric:tabular-nums;line-height:1}
+  .bigblock .amt{font-family:"Geist Mono",ui-monospace,monospace;font-size:44px;font-weight:500;margin-top:8px;font-variant-numeric:tabular-nums;line-height:1;letter-spacing:-1px}
   .bigblock.their .amt{color:var(--bs)}
   .bigblock.ours .amt{color:var(--gl-dark)}
   .vsbar{display:flex;align-items:center;font-weight:800;color:#94a3b8;font-size:14px;padding:0 6px}
-  .savebanner{background:#0f766e;color:#fff;border-radius:14px;padding:18px;margin:14px 0 6px;font-size:19px;font-weight:600}
-  .savebanner b{font-size:24px;font-weight:800}
+  .savebanner{background:var(--ink);color:#f4f0ec;border-radius:14px;padding:18px;margin:14px 0 6px;font-size:19px;font-weight:600}
+  .savebanner b{font-size:24px;font-weight:800;color:#e3c98a}
   .reveal .pitch{color:var(--ink-soft);font-size:15px;max-width:620px;margin:10px auto 0}
 
   details.dd{margin-top:18px;border:1px solid var(--line);border-radius:12px;overflow:hidden;text-align:left}
@@ -96,8 +101,8 @@
   .badge.warn{background:var(--warn-soft);color:var(--warn)}
   .badge.ok{background:var(--gl-soft);color:var(--gl-dark)}
   .badge.free{background:var(--gl-soft);color:var(--gl-dark)}
-  .glquote{background:#f0fdfa;border:1px solid #99f6e4;border-radius:12px;padding:14px 16px;margin-top:14px}
-  .glline{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed #99f6e4;font-size:14px}
+  .glquote{background:var(--gl-soft);border:1px solid #e0cfa8;border-radius:12px;padding:14px 16px;margin-top:14px}
+  .glline{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed #e0cfa8;font-size:14px}
   .glline:last-of-type{border-bottom:none}
   .glline .fee{font-weight:800;color:var(--gl-dark)}
   .gltotal{display:flex;justify-content:space-between;padding-top:11px;margin-top:5px;border-top:2px solid var(--gl);font-weight:800;font-size:16px;color:var(--gl-dark)}
@@ -106,7 +111,7 @@
   .chat{margin-top:28px;border-top:1px solid var(--line);padding-top:20px}
   .chat-suggest{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
   .chat-suggest .chip{border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 12px;font-size:13px;color:var(--ink-soft);cursor:pointer;transition:.15s}
-  .chat-suggest .chip:hover{border-color:var(--gl);color:var(--gl-dark);background:#f0fdfa}
+  .chat-suggest .chip:hover{border-color:var(--gl);color:var(--gl-dark);background:var(--gl-soft)}
   .chat-log{display:flex;flex-direction:column;gap:16px;margin-bottom:16px}
   .chat-log:empty{display:none}
   .msg{display:flex;gap:10px;max-width:92%}
@@ -115,7 +120,7 @@
   .avatar{flex:0 0 auto;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;letter-spacing:.3px;background:var(--gl-soft);color:var(--gl-dark);margin-top:1px}
   .bubble{padding:10px 14px;border-radius:12px;font-size:14px;line-height:1.55;white-space:pre-wrap}
   .msg.ai .bubble{background:#f8fafc;border:1px solid var(--line);color:var(--ink)}
-  .msg.user .bubble{background:var(--gl);color:#fff}
+  .msg.user .bubble{background:var(--ink);color:#f4f0ec}
   .chat-input{display:flex;gap:8px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:12px;padding:6px 6px 6px 15px;transition:.15s}
   .chat-input:focus-within{border-color:var(--gl);box-shadow:0 0 0 3px rgba(13,148,136,.12)}
   .chat-input input{flex:1;border:none;outline:none;background:transparent;font:inherit;padding:8px 0}
@@ -131,9 +136,9 @@
 <body>
 <header class="hero">
   <div class="wrap">
-    <div class="brand"><span class="dot"></span> GENERAL&nbsp;LEGAL</div>
+    <div class="brand"><img src="logo_light.svg" alt="General Legal" /></div>
     <h1>Call BS on your legal bill.</h1>
-    <p class="sub">Upload an invoice from your law firm. We will tell you, in plain numbers, what that same work costs at General Legal's flat fees.</p>
+    <p class="sub">Upload an invoice from your law firm. We will show you, in plain numbers, what that same work costs at General Legal's flat fees. No hourly meter, no surprises.</p>
   </div>
 </header>
 

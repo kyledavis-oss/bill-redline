@@ -55,7 +55,7 @@ YOUR JOB:
    The goal is the lowest General Legal total you can justify with a straight face, never an inflated one.
 3. For each line, list any bs_flags that apply (short phrases): a BigLaw hourly rate ($450+/hr), a top-of-market rate ($900+/hr), block billing (multiple tasks lumped in one entry), a large single entry (5+ hours), a vague entry, or internal firm time billed to the client.
 4. Compute the General Legal total as ONE flat fee per DISTINCT gl_service present (deduped across the matter), excluding "bundled" and "discount". their_total is the sum of every line amount including negative discounts.
-5. Write a short (2-4 sentence) plain-English narrative of what stands out, no em dashes.
+5. Write a short (2-4 sentence) plain-English narrative of what stands out: name the specific charges that look inflated and why. Do NOT state an overall dollar total or a savings percentage. The app calculates and displays those figures itself, so any total or percentage you assert here risks contradicting it. No em dashes.
 
 Return ONLY the structured object.`;
 

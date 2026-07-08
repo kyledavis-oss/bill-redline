@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Privacy Policy | General Legal</title>
+<link rel="icon" href="logo_mark_dark.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{ --ink:#211f1c; --ink-soft:#6f6a62; --line:#e6e0d8; --bg:#f4f0ec; --gl:#a57e47; --gl-dark:#8a6838; }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Geist",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:var(--bg);line-height:1.6}
+  .wrap{max-width:760px;margin:0 auto;padding:48px 20px 80px}
+  a.back{color:var(--gl-dark);font-size:14px;font-weight:600;text-decoration:none}
+  h1{font-size:32px;font-weight:700;letter-spacing:-.5px;margin:18px 0 6px}
+  .updated{color:var(--ink-soft);font-size:13px;margin:0 0 30px}
+  h2{font-size:18px;margin:30px 0 8px}
+  p,li{font-size:15px;color:#33302b}
+  ul{padding-left:22px}
+  .placeholder{background:#f3e7cf;border:1px solid #e6d4a8;color:#6b5220;border-radius:8px;padding:3px 8px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;display:inline-block;margin-bottom:6px}
+  .note{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:14px 0}
+  footer{border-top:1px solid var(--line);margin-top:40px;padding-top:20px;font-size:13px;color:var(--ink-soft)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="index.html">&larr; Back to the tool</a>
+  <h1>Privacy Policy</h1>
+  <p class="updated">Draft for review. Last updated: [DATE]</p>
+
+  <div class="note">
+    <span class="placeholder">Placeholder</span>
+    <p style="margin:0">This is an engineering draft that reflects how the tool actually handles data. Legal and compliance should review and finalize all wording before it is published.</p>
+  </div>
+
+  <h2>What this tool is</h2>
+  <p>This tool lets you compare a legal invoice against General Legal's published flat fees. It is an illustrative cost comparison and general information only. It is not legal advice, and using it does not create an attorney-client relationship.</p>
+
+  <h2>How your document is handled</h2>
+  <p>There are two modes, and you choose which one:</p>
+  <ul>
+    <li><b>On-device (default):</b> your PDF is read and analyzed entirely inside your web browser. The file and its contents are never transmitted to us or to any third party, and nothing is stored.</li>
+    <li><b>Analyze with AI (opt-in):</b> when you check this box, the extracted invoice text (not the file), with the letterhead and obvious identifiers removed on your device first, is sent over an encrypted connection to our server and to our AI provider (Anthropic) solely to generate your result. We do not write it to a database or retain it after the response is returned.</li>
+  </ul>
+
+  <h2>Redaction</h2>
+  <p>Before any text is sent in AI mode, the tool attempts to remove the document header and obvious identifiers (email addresses, phone numbers, links, and long identification numbers) in your browser. This is a best-effort measure and not a guarantee. Please do not upload privileged or confidential information, and only upload documents you have the right to share.</p>
+
+  <h2>Retention and training</h2>
+  <p><span class="placeholder">Confirm</span></p>
+  <ul>
+    <li>We do not store your invoice text or the AI results on our servers.</li>
+    <li>Our AI provider does not use API inputs or outputs to train models without permission. [Confirm current zero-data-retention arrangement status with Anthropic and state the retention period here.]</li>
+    <li>[State any server request-log retention and duration.]</li>
+  </ul>
+
+  <h2>Information we do not collect</h2>
+  <p>[PLACEHOLDER: describe analytics, cookies, and any contact information collected via the "Get this work done" / contact links, if any.]</p>
+
+  <h2>Your choices</h2>
+  <p>You can use the tool entirely on-device by leaving "Analyze with AI" unchecked. [PLACEHOLDER: describe any data-deletion or contact process.]</p>
+
+  <h2>Contact</h2>
+  <p>[PLACEHOLDER: privacy contact email and mailing address.]<br />General Legal, LLP, Union City, CA.</p>
+
+  <footer>
+    Attorney Advertising. General Legal, LLP, Union City, CA. This page is a draft pending compliance review.
+  </footer>
+</div>
+</body>
+</html>

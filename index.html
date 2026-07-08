@@ -129,7 +129,11 @@
   .cta-row{margin-top:22px}
   .disclaimer{font-size:12px;color:var(--ink-soft);margin-top:16px;line-height:1.5}
   .hidden{display:none}
-  footer{text-align:center;font-size:13px;color:var(--ink-soft);padding:30px 0 50px}
+  .warnbox{background:var(--warn-soft);border:1px solid #e6d4a8;color:#6b5220;border-radius:10px;padding:11px 14px;font-size:13px;margin-bottom:16px;line-height:1.45}
+  footer{text-align:center;font-size:13px;color:var(--ink-soft);padding:30px 20px 50px;line-height:1.6}
+  footer p{margin:4px 0}
+  footer a{color:var(--gl-dark)}
+  footer .adv{font-weight:700;letter-spacing:.6px;text-transform:uppercase;font-size:11px}
   @media(max-width:560px){h1{font-size:30px}.bigblock .amt{font-size:36px}.vsbar{width:100%;justify-content:center;padding:4px 0}}
 </style>
 </head>
@@ -138,7 +142,7 @@
   <div class="wrap">
     <div class="brand"><img src="logo_light.svg" alt="General Legal" /></div>
     <h1>Call BS on your legal bill.</h1>
-    <p class="sub">Upload an invoice from your law firm. We will show you, in plain numbers, what that same work costs at General Legal's flat fees. No hourly meter, no surprises.</p>
+    <p class="sub">Upload an invoice from your law firm and see, in plain numbers, what a comparable scope of work costs at General Legal's flat fees. No hourly meter, no surprises.</p>
   </div>
 </header>
 
@@ -146,7 +150,8 @@
   <!-- upload -->
   <section class="card" id="uploadCard">
     <h2>Upload your bill</h2>
-    <p class="hint">A PDF invoice from your firm. Everything is read right here in your browser. Your bill is never sent to a server.</p>
+    <p class="hint">By default your bill is read entirely on your device. Nothing is uploaded to or stored on a server.</p>
+    <div class="warnbox">Please do not upload privileged or confidential information, and only upload documents you have the right to share.</div>
     <div class="drop" id="drop">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/>
@@ -159,7 +164,7 @@
       <input type="file" id="file" accept="application/pdf" />
     </div>
     <div class="status" id="status"></div>
-    <label class="aitoggle"><input type="checkbox" id="useAI" /> <span>Analyze with AI for a smarter read. This sends the bill's text (not the file) to our server for analysis. Leave unchecked to keep everything on your device.</span></label>
+    <label class="aitoggle"><input type="checkbox" id="useAI" /> <span>Analyze with AI for a sharper read. When on, only the invoice text (not the file), with the letterhead and obvious identifiers removed, is sent to our server and AI provider to produce the analysis. It is processed to generate your result and is not stored by us. Leave unchecked to keep everything on your device.</span></label>
     <div class="demolink">No bill handy? <a id="demo">Run a sample bill instead.</a></div>
   </section>
 
@@ -167,12 +172,12 @@
   <section class="card reveal hidden" id="revealCard">
     <div class="bigrow">
       <div class="bigblock their">
-        <div class="lbl">Your firm charged you</div>
+        <div class="lbl">This invoice</div>
         <div class="amt" id="bigTheirs">$0</div>
       </div>
       <div class="vsbar">vs</div>
       <div class="bigblock ours">
-        <div class="lbl">General Legal would charge</div>
+        <div class="lbl">General Legal flat fee</div>
         <div class="amt" id="bigOurs">$0</div>
       </div>
     </div>
@@ -182,15 +187,15 @@
 
     <!-- the dropdown the user asked for -->
     <details class="dd" id="compareDD">
-      <summary>See what our services cost vs the average BigLaw bill</summary>
+      <summary>See General Legal flat fees vs a typical hourly estimate</summary>
       <div class="dd-body">
         <table class="compare">
           <thead>
-            <tr><th>Service</th><th class="num">General Legal</th><th class="num">Average BigLaw</th><th class="num">You save</th></tr>
+            <tr><th>Service</th><th class="num">General Legal</th><th class="num">Typical hourly (est.)</th><th class="num">Difference</th></tr>
           </thead>
           <tbody id="compareRows"></tbody>
         </table>
-        <p class="disclaimer">Average BigLaw figures are estimates for the same deliverable at a typical $600 to $1,000 hourly rate. General Legal prices are our published flat fees.</p>
+        <p class="disclaimer">General Legal prices are our published flat fees. The "typical hourly" column is an illustrative estimate for a comparable deliverable at roughly $600 to $1,000 per hour, not a quote for any specific firm. Actual cost depends on scope.</p>
       </div>
     </details>
 
@@ -200,7 +205,7 @@
       <div class="dd-body">
         <div class="matterbar hidden" id="matterbar"></div>
         <table class="their">
-          <thead><tr><th>Line item and our verdict</th><th class="num">Their charge</th></tr></thead>
+          <thead><tr><th>Line item</th><th class="num">Amount billed</th></tr></thead>
           <tbody id="theirRows"></tbody>
         </table>
         <div class="glquote" id="glQuote"></div>
@@ -225,18 +230,18 @@
     </details>
 
     <div class="chat" id="chat">
-      <div class="panel-title" style="color:var(--gl-dark)">Ask about this bill</div>
+      <div class="panel-title" style="color:var(--gl-dark)">Ask about legal pricing</div>
       <div class="chat-suggest" id="chatSuggest">
-        <button type="button" class="chip">Why is this overbilled?</button>
-        <button type="button" class="chip">What should I push back on?</button>
-        <button type="button" class="chip">What would General Legal do differently?</button>
+        <button type="button" class="chip">How do flat fees work?</button>
+        <button type="button" class="chip">What is block billing?</button>
+        <button type="button" class="chip">How would General Legal price this?</button>
       </div>
       <div class="chat-log" id="chatLog"></div>
       <form class="chat-input" id="chatForm">
-        <input id="chatText" autocomplete="off" placeholder="Ask a question about your bill..." />
+        <input id="chatText" autocomplete="off" placeholder="Ask a general question about legal pricing..." />
         <button type="submit" class="btn primary" id="chatSend">Ask</button>
       </form>
-      <p class="disclaimer">Informational only, not legal advice. Answers are AI-generated and may be wrong.</p>
+      <p class="disclaimer">General information only. This is not legal advice, does not create an attorney-client relationship, and cannot tell you how to handle a dispute with your current counsel. Answers are AI-generated and may be wrong.</p>
     </div>
 
     <div class="cta-row">
@@ -244,14 +249,21 @@
       <button class="btn ghost" id="restartBtn">Try another bill</button>
     </div>
     <p class="disclaimer">
-      This is an illustrative comparison, not legal advice or a binding quote. Flat fees shown are General
-      Legal's standard published rates for the matched service type; complex or high-volume matters may be
-      quoted differently. Bill parsing is automated and may misread line items, so review them before relying on this.
+      This is an illustrative cost comparison, not legal advice, not a binding quote, and not an assertion that
+      any firm overbilled or did anything improper. Flat fees shown are General Legal's standard published rates
+      for the matched service type; complex or high-volume matters may be quoted differently. Bill parsing is
+      automated and may misread line items, so review them before relying on this. Using this tool does not create
+      an attorney-client relationship.
     </p>
   </section>
 </main>
 
-<footer>General Legal. Flat-fee legal work without the BigLaw markup.</footer>
+<footer>
+  <p class="adv">Attorney Advertising</p>
+  <p>General Legal, LLP &middot; Union City, CA</p>
+  <p>This tool is an illustrative cost comparison and general information only. It is not legal advice, and using it does not create an attorney-client relationship.</p>
+  <p><a href="privacy.html">Privacy Policy</a></p>
+</footer>
 
 <script>
 pdfjsLib.GlobalWorkerOptions.workerSrc =
@@ -356,19 +368,19 @@ function classify(desc){
 }
 
 /* ---------- BS detector ---------- */
+// Neutral, factual observations about how a line was billed. These describe the
+// bill's structure; they are not accusations of wrongdoing by any firm.
 function flags(it){
   const out=[]; const d=(it.desc||"").toLowerCase();
   if(it.task==="discount"||it.amount<=0) return out;
-  if(it.rate>=900)      out.push({t:"bs",  x:`Top-of-market rate, $${Math.round(it.rate)}/hr`});
-  else if(it.rate>=450) out.push({t:"bs",  x:`BigLaw hourly rate, $${Math.round(it.rate)}/hr`});
-  else if(it.rate>=300) out.push({t:"warn",x:`$${Math.round(it.rate)}/hr`});
+  if(it.rate>=300) out.push({t:"warn",x:`Billed hourly at $${Math.round(it.rate)}/hr`});
   const conj=(d.match(/;|\band\b/g)||[]).length;
-  if(it.hours>=2 && conj>=2) out.push({t:"bs",x:"Block billed, multiple tasks in one entry"});
-  if(it.hours>=5) out.push({t:"bs",x:`${it.hours} hours on a single entry`});
+  if(it.hours>=2 && conj>=2) out.push({t:"warn",x:"Multiple tasks in one entry"});
+  if(it.hours>=5) out.push({t:"warn",x:`${it.hours} hours in one entry`});
   if(/(attention to|various|miscellaneous|strategiz|work on|general matters|review file)/.test(d))
-    out.push({t:"warn",x:"Vague entry"});
+    out.push({t:"warn",x:"Limited description"});
   if(/internal (discussion|conference|meeting|call)/.test(d) && it.amount>0)
-    out.push({t:"warn",x:"Internal firm time billed to client"});
+    out.push({t:"warn",x:"Internal time billed"});
   return out;
 }
 
@@ -428,17 +440,23 @@ function compute(animate){
   });
   const gl=deliverables.reduce((s,d)=>s+d.fee,0);
   const save=theirs-gl;
-  const pct=theirs>0?Math.round(Math.abs(save)/theirs*100):0;
+  const mult=gl>0?theirs/gl:0;
+  const cheaper=mult>=3?Math.round(mult)+"x":(Math.round(mult*10)/10)+"x";
 
   setBig($("#bigTheirs"),theirs,animate);
   setBig($("#bigOurs"),gl,animate);
 
   if(save>=0){
-    $("#saveBanner").innerHTML=`You would have kept <b>${money(save)}</b>. That is about ${pct}% less.`;
-    $("#pitch").textContent="Same work. No hourly meter, no block billing, no surprise invoice. Just one flat fee agreed up front.";
+    if(gl<=0){
+      $("#saveBanner").innerHTML="Every line on this invoice is work General Legal includes in its flat fee, at no separate charge.";
+    }else{
+      const tail = mult<1.15 ? "about the same as this invoice." : `about ${cheaper} less than this invoice.`;
+      $("#saveBanner").innerHTML=`General Legal's flat fee for a comparable scope is <b>${money(gl)}</b>, ${tail}`;
+    }
+    $("#pitch").textContent="A comparable scope of work, priced as one flat fee agreed up front. No hourly meter.";
   }else{
-    $("#saveBanner").innerHTML=`This small bill came in under our flat-fee floor by <b>${money(-save)}</b>.`;
-    $("#pitch").textContent="On a bill this small the hourly charge was actually competitive. Our flat fee would still have capped it up front with no risk of it ballooning.";
+    $("#saveBanner").innerHTML=`This invoice is below General Legal's typical flat fee for this scope by <b>${money(-save)}</b>.`;
+    $("#pitch").textContent="On a small matter, hourly and flat-fee pricing land close together. A flat fee still fixes the price up front.";
   }
 
   const aiNoteEl=$("#aiNote");
@@ -452,8 +470,8 @@ function compute(animate){
     }
     const fl=flags(it);
     let badges=fl.map(f=>`<span class="badge ${f.t}">${f.x}</span>`).join("");
-    if(it.task==="bundled") badges+=`<span class="badge free">Included free at General Legal</span>`;
-    if(!badges) badges=`<span class="badge ok">looks fair</span>`;
+    if(it.task==="bundled") badges+=`<span class="badge free">Included in General Legal's flat fee</span>`;
+    if(!badges) badges=`<span class="badge ok">no flags</span>`;
     const meta=[it.who,it.hours?`${it.hours} hrs`:null,it.rate?`$${Math.round(it.rate)}/hr`:null].filter(Boolean).join("  &middot;  ");
     const amt = it.amount>0 ? money(it.amount) : (it.rate?`<span class="credit">No charge</span>`:money(it.amount));
     return `<tr><td><div class="desc">${escapeHtml(it.desc)}</div><div class="meta">${meta||"&nbsp;"}</div><div>${badges}</div></td><td class="num">${amt}</td></tr>`;
@@ -540,6 +558,22 @@ async function parsePdf(file){
 }
 
 /* ---------- AI analysis (optional, via /api/analyze) ---------- */
+// Best-effort client-side redaction before any text leaves the device: drop the
+// letterhead/header block above the first dated entry, and scrub obvious
+// identifiers (emails, phone numbers, URLs, long ID numbers). This is not a
+// guarantee, which is why the upload warning asks users not to send privileged
+// material in the first place.
+function redactForAI(text){
+  const lines=String(text||"").split("\n");
+  const dateRe=/\b\d{1,2}\/\d{1,2}\/\d{2,4}\b/;
+  const first=lines.findIndex(l=>dateRe.test(l));
+  const body=(first>0?lines.slice(first):lines).join("\n");
+  return body
+    .replace(/[\w.+-]+@[\w.-]+\.\w{2,}/g,"[redacted]")
+    .replace(/\b(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b/g,"[redacted]")
+    .replace(/\bhttps?:\/\/\S+/gi,"[redacted]")
+    .replace(/\b\d{9,}\b/g,"[redacted]");
+}
 async function analyzeWithAI(text){
   const r = await fetch("/api/analyze", {
     method:"POST",
@@ -659,7 +693,7 @@ async function handleFile(f){
   let parsed;
   try{
     parsed=await parsePdf(f);
-    billContext=parsed.text||"";
+    billContext=redactForAI(parsed.text||"");
   }catch(err){
     console.error(err);
     $("#status").textContent="Had trouble reading that PDF. Opening manual entry instead.";
@@ -670,7 +704,7 @@ async function handleFile(f){
   if(useAI && parsed.text && parsed.text.trim().length>20){
     $("#status").textContent="Analyzing with AI...";
     try{
-      const data = await analyzeWithAI(parsed.text);
+      const data = await analyzeWithAI(redactForAI(parsed.text));
       applyAIResult(data);
       return;
     }catch(err){
@@ -716,7 +750,7 @@ async function sendChat(text){
   const aiEl=addBubble("ai","…");
   let acc="";
   try{
-    const ctx=(matter?("Matter: "+matter+"\n"):"")+billContext;
+    const ctx=billContext;
     const r=await fetch("/api/ask",{
       method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({billText:ctx,messages:chatMessages})

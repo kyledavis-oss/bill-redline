@@ -130,6 +130,13 @@
   .disclaimer{font-size:12px;color:var(--ink-soft);margin-top:16px;line-height:1.5}
   .hidden{display:none}
   .warnbox{background:var(--warn-soft);border:1px solid #e6d4a8;color:#6b5220;border-radius:10px;padding:11px 14px;font-size:13px;margin-bottom:16px;line-height:1.45}
+  .leadgate{margin-bottom:16px}
+  .leadgate label{display:block;font-size:13px;font-weight:600;margin-bottom:6px}
+  .leadgate input{width:100%;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font:inherit;background:#fff}
+  .leadgate input:focus{border-color:var(--gl);outline:none;box-shadow:0 0 0 3px rgba(165,126,71,.15)}
+  .leadgate .leadnote{font-size:12px;color:var(--ink-soft);margin:7px 0 0;line-height:1.45}
+  .drop.locked{opacity:.5;pointer-events:none}
+  .btn[disabled]{opacity:.5;cursor:not-allowed}
   footer{text-align:center;font-size:13px;color:var(--ink-soft);padding:30px 20px 50px;line-height:1.6}
   footer p{margin:4px 0}
   footer a{color:var(--gl-dark)}
@@ -150,9 +157,14 @@
   <!-- upload -->
   <section class="card" id="uploadCard">
     <h2>Upload your bill</h2>
-    <p class="hint">By default your bill is read entirely on your device. Nothing is uploaded to or stored on a server.</p>
+    <p class="hint">Your bill is read on your device and is not uploaded, unless you turn on AI analysis below. The email you enter is submitted so we can send your comparison and follow up.</p>
     <div class="warnbox">Please do not upload privileged or confidential information, and only upload documents you have the right to share.</div>
-    <div class="drop" id="drop">
+    <div class="leadgate">
+      <label for="leadEmail">Your email</label>
+      <input type="email" id="leadEmail" placeholder="you@company.com" autocomplete="email" />
+      <p class="leadnote">Enter your email to see your comparison. By continuing, you agree that General Legal may email you about its services.</p>
+    </div>
+    <div class="drop locked" id="drop">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/>
         <path d="M14 3v5h5"/>
@@ -326,7 +338,10 @@ let aiNarrative = "";
 let billContext = "";
 let chatMessages = [];
 let chatBusy = false;
+let leadEmail = "";
+let leadSent = false;
 let nextId = 1;
+const emailOk = e=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((e||"").trim());
 const $ = s=>document.querySelector(s);
 
 /* ---------- classification ---------- */
@@ -688,6 +703,8 @@ $("#chooseBtn").addEventListener("click",ev=>{ ev.stopPropagation(); fileInput.c
 fileInput.addEventListener("change",e=>{const f=e.target.files[0]; if(f) handleFile(f);});
 
 async function handleFile(f){
+  if(!emailOk(leadEmail)){ $("#status").textContent="Please enter your email above to continue."; $("#leadEmail").focus(); return; }
+  captureLead();
   if(f.type!=="application/pdf"){$("#status").textContent="Please choose a PDF invoice.";return;}
   matter=""; aiNarrative=""; billContext="";
   let parsed;
@@ -777,12 +794,38 @@ async function sendChat(text){
 $("#chatForm").addEventListener("submit",e=>{ e.preventDefault(); sendChat($("#chatText").value); });
 $("#chatSuggest").querySelectorAll(".chip").forEach(b=>b.addEventListener("click",()=>sendChat(b.textContent)));
 
-$("#demo").addEventListener("click",()=>{ matter="Sample matter (demonstration only)"; aiNarrative=""; billContext=DEMO.map(d=>`${d.desc} | ${d.hours} hrs @ $${d.rate}/hr | $${d.amount}`).join("\n"); items=DEMO.map(d=>mkItem(d.desc,d.hours,d.rate,d.amount,d.task,d.who)); reveal(); });
+$("#demo").addEventListener("click",()=>{
+  if(!emailOk(leadEmail)){ $("#status").textContent="Please enter your email above to continue."; $("#leadEmail").focus(); return; }
+  captureLead();
+  matter="Sample matter (demonstration only)"; aiNarrative="";
+  billContext=DEMO.map(d=>`${d.desc} | ${d.hours} hrs @ $${d.rate}/hr | $${d.amount}`).join("\n");
+  items=DEMO.map(d=>mkItem(d.desc,d.hours,d.rate,d.amount,d.task,d.who)); reveal();
+});
 $("#addRow").addEventListener("click",addRow);
 $("#restartBtn").addEventListener("click",restart);
 $("#ctaBtn").addEventListener("click",()=>{ window.location.href="mailto:hello@general.legal?subject=Get%20this%20done%20at%20General%20Legal"; });
 
+/* ---------- required email gate + consented lead capture ---------- */
+function updateGate(){
+  const ok=emailOk(leadEmail);
+  $("#drop").classList.toggle("locked",!ok);
+  $("#chooseBtn").disabled=!ok;
+  const d=$("#demo");
+  d.style.pointerEvents = ok ? "" : "none";
+  d.style.opacity = ok ? "" : ".5";
+}
+async function captureLead(){
+  if(leadSent || !emailOk(leadEmail)) return;
+  leadSent=true;
+  try{
+    await fetch("/api/lead",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({email:leadEmail.trim(),consent:true})});
+  }catch(_){ /* non-blocking: never stop the user from seeing results */ }
+}
+$("#leadEmail").addEventListener("input",e=>{ leadEmail=e.target.value; updateGate(); });
+
 renderCompare();
+updateGate();
 </script>
 </body>
 </html>

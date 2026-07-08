@@ -5,6 +5,9 @@
     },
     "api/ask.js": {
       "maxDuration": 60
+    },
+    "api/lead.js": {
+      "maxDuration": 10
     }
   }
 }

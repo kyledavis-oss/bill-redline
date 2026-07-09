@@ -801,6 +801,10 @@ $("#demo").addEventListener("click",()=>{
   matter="Sample matter (demonstration only)"; aiNarrative="";
   billContext=DEMO.map(d=>`${d.desc} | ${d.hours} hrs @ $${d.rate}/hr | $${d.amount}`).join("\n");
   items=DEMO.map(d=>mkItem(d.desc,d.hours,d.rate,d.amount,d.task,d.who)); reveal();
+  // The demo is fabricated data, not a real invoice, so open the breakdown by
+  // default instead of leaving it collapsed behind an accordion the visitor
+  // has no reason to know is there.
+  $("#breakdownDD").open=true;
 });
 $("#addRow").addEventListener("click",addRow);
 $("#restartBtn").addEventListener("click",restart);

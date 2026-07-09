@@ -22,15 +22,14 @@ const docStub = {
 };
 const api = new Function(
   "pdfjsLib", "document", "window", "performance",
-  scriptBody + "\n;return {classify, linesToItems, SERVICES, feeMap, NO_DELIVERABLE};"
+  scriptBody + "\n;return {linesToItems, feeMap, NO_DELIVERABLE};"
 )(
   { GlobalWorkerOptions: {} },
   docStub,
   { scrollTo: noop, location: {} },
   { now: () => 0 }
 );
-const { classify, linesToItems, SERVICES, feeMap, NO_DELIVERABLE } = api;
-const labelOf = k => (SERVICES.find(s => s.key === k) || {}).label || k;
+const { linesToItems, feeMap, NO_DELIVERABLE } = api;
 
 // 2) replicate parsePdf() text grouping exactly as the browser does it
 async function parsePdf(file) {

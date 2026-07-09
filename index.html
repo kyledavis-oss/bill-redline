@@ -135,6 +135,7 @@
   .leadgate input{width:100%;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font:inherit;background:#fff}
   .leadgate input:focus{border-color:var(--gl);outline:none;box-shadow:0 0 0 3px rgba(165,126,71,.15)}
   .leadgate .leadnote{font-size:12px;color:var(--ink-soft);margin:7px 0 0;line-height:1.45}
+  .leadgate .leadnote a{color:var(--gl-dark)}
   .drop.locked{opacity:.5;pointer-events:none}
   .btn[disabled]{opacity:.5;cursor:not-allowed}
   footer{text-align:center;font-size:13px;color:var(--ink-soft);padding:30px 20px 50px;line-height:1.6}
@@ -162,7 +163,7 @@
     <div class="leadgate">
       <label for="leadEmail">Your email</label>
       <input type="email" id="leadEmail" placeholder="you@company.com" autocomplete="email" />
-      <p class="leadnote">Enter your email to see your comparison. By continuing, you agree that General Legal may email you about its services.</p>
+      <p class="leadnote">Enter your email to see your comparison. By continuing, you agree to our <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a> and that General Legal may email you about its services. You can unsubscribe at any time.</p>
     </div>
     <div class="drop locked" id="drop">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -274,6 +275,7 @@
   <p class="adv">Attorney Advertising</p>
   <p>General Legal, LLP &middot; Union City, CA</p>
   <p>This tool is an illustrative cost comparison and general information only. It is not legal advice, and using it does not create an attorney-client relationship.</p>
+  <p><a href="privacy.html">Privacy Policy</a></p>
 </footer>
 
 <script>

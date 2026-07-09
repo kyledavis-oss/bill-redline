@@ -51,3 +51,43 @@ backend, so the AI checkbox will fall back to the regex parser.
   PDF file) is sent to the function and to Anthropic. The page says so next to the
   checkbox. For confidential matters, consider a zero-data-retention configuration
   on your Anthropic account.
+- `privacy.html` is the site's privacy policy, linked from the footer and the
+  email-gate note. It identifies General Legal, Inc. (228 Park Ave S PMB
+  629206, New York, NY 10003-1502) as the entity that builds and operates the
+  Tool, and General Legal, LLP as the licensed firm providing the legal
+  services referenced in results. Use the Inc. address in the CAN-SPAM
+  footer of any actual campaign email (it's the entity initiating the send),
+  and keep the LLP name and a responsible attorney identified in the ad body
+  (bar advertising rules attach to whoever is licensed to provide the
+  advertised legal services, not to the mailing address).
+
+## Lead storage & unsubscribe (required before a mass send)
+
+`api/lead.js` writes durably to Redis instead of only logging, and honors
+unsubscribes, via three pieces:
+
+1. **Storage** (`lib/store.js`): a Redis REST database. Create one at
+   https://vercel.com/marketplace (Upstash) or https://upstash.com directly,
+   then set `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` (Vercel's
+   own `KV_REST_API_URL` / `KV_REST_API_TOKEN` names also work). Without these,
+   `/api/lead` fails closed with a clear `storage_not_configured` error instead
+   of silently dropping leads.
+2. **Unsubscribe** (`api/unsubscribe.js`, `lib/sign.js`): set `UNSUBSCRIBE_SECRET`
+   to a long random string. This signs the link so only a link this server
+   generated can suppress an address. The endpoint handles both a normal
+   click (GET) and the one-click POST mail providers send for a
+   `List-Unsubscribe=One-Click` header (RFC 8058) — put both in your outbound
+   email's `List-Unsubscribe` / `List-Unsubscribe-Post` headers.
+3. **Export** (`api/export-leads.js`): set `ADMIN_EXPORT_TOKEN` to a long
+   random string. `GET /api/export-leads` with `Authorization: Bearer
+   <token>` returns every active (non-suppressed) lead, each with a ready-made
+   `unsubscribe_url`. Feed this into whatever actually sends the campaign
+   (ESP, CRM import, mail merge) so every message carries a working
+   unsubscribe link, and re-run the export before each send so anyone who
+   already opted out is excluded.
+
+None of this replaces the CAN-SPAM and attorney-solicitation review of the
+campaign itself (subject line, "ADVERTISING MATERIAL" labeling where your
+target states require it, a physical postal address in the email footer,
+honoring opt-outs within 10 business days) — it only makes the app's side of
+that (storage + suppression) real instead of a stub.

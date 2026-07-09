@@ -8,6 +8,12 @@
     },
     "api/lead.js": {
       "maxDuration": 10
+    },
+    "api/unsubscribe.js": {
+      "maxDuration": 10
+    },
+    "api/export-leads.js": {
+      "maxDuration": 10
     }
   }
 }

@@ -811,9 +811,11 @@ function updateGate(){
   const ok=emailOk(leadEmail);
   $("#drop").classList.toggle("locked",!ok);
   $("#chooseBtn").disabled=!ok;
-  const d=$("#demo");
-  d.style.pointerEvents = ok ? "" : "none";
-  d.style.opacity = ok ? "" : ".5";
+  // Stays clickable even when gated: the click handler below already shows
+  // "Please enter your email above to continue" and focuses the field, which
+  // only works if the click can actually reach it. A dimmed-but-inert link
+  // (pointer-events:none) just looks broken with no explanation.
+  $("#demo").style.opacity = ok ? "" : ".7";
 }
 async function captureLead(){
   if(leadSent || !emailOk(leadEmail)) return;

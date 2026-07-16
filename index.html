@@ -159,9 +159,11 @@
   .fancy-sep{display:flex;align-items:center;gap:12px;margin:14px 0;color:var(--gl)}
   .fancy-sep::before,.fancy-sep::after{content:"";flex:1;height:1px;background:var(--line)}
   .fancy-sep span{font-size:9px;line-height:1}
-  .gaterow{display:flex;gap:10px;flex-wrap:wrap}
-  .gaterow input{flex:1;min-width:220px;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font:inherit;background:#fff}
-  .gaterow input:focus{border-color:var(--gl);outline:none;box-shadow:0 0 0 3px rgba(165,126,71,.15)}
+  .sideemail{display:flex;gap:8px;margin-top:12px}
+  .sideemail .btn{width:auto;flex:0 0 auto}
+  .sideemail input{flex:1;min-width:0;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit;background:#fff}
+  .sideemail input:focus{border-color:var(--gl);outline:none;box-shadow:0 0 0 3px rgba(165,126,71,.15)}
+  .sidecta .subnote{text-align:left;margin-top:8px}
   .btn[disabled]{opacity:.5;cursor:not-allowed}
   footer{text-align:center;font-size:13px;color:var(--ink-soft);padding:30px 20px 50px;line-height:1.6}
   footer p{margin:4px 0}
@@ -206,18 +208,6 @@
     </a>
   </section>
 
-  <!-- email gate: shown after a bill is parsed, before the results -->
-  <section class="card hidden" id="gateCard">
-    <h2>Your comparison is ready:</h2>
-    <div class="h2rule"></div>
-    <form class="gaterow" id="gateForm">
-      <input type="email" id="leadEmail" placeholder="Enter your email" autocomplete="email" aria-label="Email" />
-      <button type="submit" class="btn primary">Show my comparison</button>
-    </form>
-    <div class="status" id="gateStatus"></div>
-    <p class="subnote">By continuing, you agree to our <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a> and to emails from General Legal &mdash; unsubscribe anytime.</p>
-  </section>
-
   <!-- dramatized reveal -->
   <section class="card reveal hidden" id="revealCard">
     <!-- headline graphic: the two totals drawn to scale -->
@@ -254,6 +244,12 @@
         <div class="sidecta">
           <p class="sidecta-note">One flat fee, agreed up front. No hourly meter.</p>
           <button class="btn primary" id="ctaBtnSide">Get this work done at General Legal</button>
+          <form class="sideemail" id="leadForm">
+            <input type="email" id="leadEmail" placeholder="Or leave your email" autocomplete="email" aria-label="Email" />
+            <button type="submit" class="btn ghost">Send</button>
+          </form>
+          <div class="status" id="leadStatus"></div>
+          <p class="subnote" id="leadNote">By sharing your email, you agree to our <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a> and to emails from General Legal &mdash; unsubscribe anytime.</p>
         </div>
       </div>
     </div>
@@ -588,23 +584,9 @@ function renderCompare(){
 }
 
 /* ---------- reveal flow ---------- */
-// The email gate sits between parsing and results: the visitor uploads first,
-// then trades an email to see the comparison. Once an email is on file,
-// later bills in the same session go straight through.
 function reveal(){
-  if(!emailOk(leadEmail)){
-    $("#uploadCard").classList.add("hidden");
-    $("#gateCard").classList.remove("hidden");
-    $("#leadEmail").focus();
-    window.scrollTo({top:0,behavior:"smooth"});
-    return;
-  }
-  captureLead();
-  doReveal();
-}
-function doReveal(){
+  updateLeadUI();
   $("#uploadCard").classList.add("hidden");
-  $("#gateCard").classList.add("hidden");
   $("#revealCard").classList.remove("hidden");
   chatMessages=[]; $("#chatLog").innerHTML=""; $("#chatText").value=""; $("#chatSuggest").style.display="";
   renderRows();
@@ -614,7 +596,6 @@ function doReveal(){
 function restart(){
   items=[]; matter=""; aiNarrative=""; billContext=""; chatMessages=[];
   $("#revealCard").classList.add("hidden");
-  $("#gateCard").classList.add("hidden");
   $("#uploadCard").classList.remove("hidden");
   $("#status").textContent="";
   $("#file").value="";
@@ -893,12 +874,19 @@ async function captureLead(){
       body:JSON.stringify({email:leadEmail.trim(),consent:true})});
   }catch(_){ /* non-blocking: never stop the user from seeing results */ }
 }
-$("#gateForm").addEventListener("submit",e=>{
+// Optional email capture on the results page: leaving an email is never
+// required to see the comparison.
+function updateLeadUI(){
+  $("#leadForm").classList.toggle("hidden",leadSent);
+  $("#leadNote").classList.toggle("hidden",leadSent);
+  if(leadSent) $("#leadStatus").textContent="Thanks — we'll be in touch.";
+}
+$("#leadForm").addEventListener("submit",async e=>{
   e.preventDefault();
   leadEmail=$("#leadEmail").value;
-  if(!emailOk(leadEmail)){ $("#gateStatus").textContent="Please enter a valid email to continue."; return; }
-  $("#gateStatus").textContent="";
-  reveal();
+  if(!emailOk(leadEmail)){ $("#leadStatus").textContent="Please enter a valid email."; return; }
+  await captureLead();
+  updateLeadUI();
 });
 
 renderCompare();

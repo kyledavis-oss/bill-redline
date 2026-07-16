@@ -155,7 +155,11 @@
   .cta-row{margin-top:22px}
   .disclaimer{font-size:12px;color:var(--ink-soft);margin-top:16px;line-height:1.5}
   .hidden{display:none}
-  .leadgate{margin-bottom:16px}
+  .h2rule{width:44px;height:3px;background:var(--gl);border-radius:2px;margin:10px 0 18px}
+  .fancy-sep{display:flex;align-items:center;gap:12px;margin:14px 0;color:var(--gl)}
+  .fancy-sep::before,.fancy-sep::after{content:"";flex:1;height:1px;background:var(--line)}
+  .fancy-sep span{font-size:9px;line-height:1}
+  .leadgate{margin-bottom:0}
   .leadgate input{width:100%;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font:inherit;background:#fff}
   .leadgate input:focus{border-color:var(--gl);outline:none;box-shadow:0 0 0 3px rgba(165,126,71,.15)}
   .drop.locked{opacity:.5;pointer-events:none}
@@ -179,10 +183,12 @@
 <main class="wrap">
   <!-- upload -->
   <section class="card" id="uploadCard">
-    <h2>Upload your bill</h2>
+    <h2>Upload your bill:</h2>
+    <div class="h2rule"></div>
     <div class="leadgate">
       <input type="email" id="leadEmail" placeholder="Enter your email" autocomplete="email" aria-label="Email" />
     </div>
+    <div class="fancy-sep" aria-hidden="true"><span>&#9670;</span></div>
     <div class="drop locked" id="drop">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/>

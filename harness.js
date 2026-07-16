@@ -15,9 +15,9 @@ function stubElFn() { return stubEl; }
 const noop = () => {};
 const docStub = {
   querySelector: () => ({
-    addEventListener: noop, classList: { add: noop, remove: noop },
+    addEventListener: noop, classList: { add: noop, remove: noop, toggle: noop },
     querySelectorAll: () => [], innerHTML: "", textContent: "", open: false,
-    scrollIntoView: noop, value: "",
+    scrollIntoView: noop, value: "", style: {}, disabled: false,
   }),
 };
 const api = new Function(

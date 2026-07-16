@@ -15,15 +15,16 @@
     --ink:#211f1c; --ink-soft:#6f6a62; --line:#e6e0d8; --bg:#f4f0ec;
     --gl:#a57e47; --gl-dark:#8a6838; --gl-soft:#efe6d7;
     --bs:#b4402f; --bs-soft:#f6e2dc; --warn:#8a6838; --warn-soft:#f3e7cf;
+    --viz-gold:#b8873c;
     --card:#ffffff; --shadow:0 1px 2px rgba(33,31,28,.05),0 10px 30px rgba(33,31,28,.06);
   }
   *{box-sizing:border-box}
   body{margin:0;font-family:"Geist",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.5}
   .wrap{max-width:960px;margin:0 auto;padding:0 20px}
-  header.hero{background:#211f1c;color:#f4f0ec;padding:44px 0 60px}
+  header.hero{background:#211f1c;color:#f4f0ec;padding:28px 0 52px}
   .brand{display:flex;align-items:center}
   .brand img{height:26px;width:auto;display:block}
-  h1{font-size:40px;line-height:1.08;margin:26px 0 12px;font-weight:700;letter-spacing:-.5px}
+  h1{font-size:40px;line-height:1.08;margin:20px 0 12px;font-weight:700;letter-spacing:-.5px}
   .sub{font-size:18px;max-width:640px;opacity:.92;margin:0}
   main{margin-top:-36px;padding-bottom:80px}
   .card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:26px;margin-bottom:22px}
@@ -40,6 +41,11 @@
   .demolink a{color:var(--gl-dark);font-weight:600;cursor:pointer;text-decoration:underline}
   .aitoggle{display:flex;gap:9px;align-items:flex-start;margin-top:14px;font-size:13px;color:var(--ink-soft);cursor:pointer;line-height:1.45}
   .aitoggle input{margin-top:2px;flex:0 0 auto}
+  .subnote{font-size:12px;color:var(--ink-soft);margin:14px 0 0;line-height:1.5}
+  .subnote a{color:var(--gl-dark)}
+  .ghbadge{display:inline-flex;align-items:center;gap:8px;margin-top:14px;font-size:13px;font-weight:600;color:var(--ink);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:7px 14px;background:#fff;transition:.15s}
+  .ghbadge:hover{border-color:var(--gl);background:var(--gl-soft)}
+  .ghbadge svg{width:16px;height:16px}
   .ainote{background:var(--gl-soft);border:1px solid #e0cfa8;border-radius:12px;padding:14px 16px;margin-top:16px;font-size:14px;color:var(--ink)}
   .ainote b{color:var(--gl-dark)}
   .btn{appearance:none;border:none;border-radius:10px;padding:12px 20px;font-weight:700;font-size:15px;cursor:pointer;transition:.15s}
@@ -50,16 +56,36 @@
 
   /* dramatized reveal */
   .reveal{text-align:center}
-  .bigrow{display:flex;align-items:stretch;justify-content:center;gap:0;flex-wrap:wrap;margin:6px 0 4px}
-  .bigblock{flex:1;min-width:240px;padding:22px 18px}
-  .bigblock .lbl{font-size:13px;text-transform:uppercase;letter-spacing:.6px;font-weight:700;color:var(--ink-soft)}
-  .bigblock .amt{font-family:"Geist Mono",ui-monospace,monospace;font-size:44px;font-weight:500;margin-top:8px;font-variant-numeric:tabular-nums;line-height:1;letter-spacing:-1px}
-  .bigblock.their .amt{color:var(--bs)}
-  .bigblock.ours .amt{color:var(--gl-dark)}
-  .vsbar{display:flex;align-items:center;font-weight:800;color:#94a3b8;font-size:14px;padding:0 6px}
-  .savebanner{background:var(--ink);color:#f4f0ec;border-radius:14px;padding:18px;margin:14px 0 6px;font-size:19px;font-weight:600}
+  /* headline comparison graphic: two proportional bars from a shared baseline.
+     Bar colors are CVD-validated against white: #b4402f vs #b8873c (deutan dE 16). */
+  .viz{text-align:left;margin:4px 0 6px;border-left:1px solid var(--line);padding-left:16px}
+  .vrow{margin:0 0 18px}
+  .vrow:last-child{margin-bottom:2px}
+  .vhead{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+  .vname{font-size:13px;text-transform:uppercase;letter-spacing:.6px;font-weight:700;color:var(--ink-soft)}
+  .vamt{font-family:"Geist Mono",ui-monospace,monospace;font-size:36px;font-weight:500;font-variant-numeric:tabular-nums;line-height:1.1;letter-spacing:-1px;color:var(--ink)}
+  .vbar{height:22px;width:0;min-width:0;margin-top:7px;border-radius:0 4px 4px 0;transition:width .95s cubic-bezier(.22,1,.36,1)}
+  .vbar.their{background:var(--bs)}
+  .vbar.ours{background:var(--viz-gold)}
+  .savebanner{background:var(--ink);color:#f4f0ec;border-radius:14px;padding:18px;margin:16px 0 6px;font-size:19px;font-weight:600}
   .savebanner b{font-size:24px;font-weight:800;color:#e3c98a}
   .reveal .pitch{color:var(--ink-soft);font-size:15px;max-width:620px;margin:10px auto 0}
+
+  /* side-by-side: their bill vs the General Legal quote, always visible */
+  .duel{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:24px;text-align:left;align-items:start}
+  .duel>div{min-width:0}
+  /* the quote column sticks while a long line-item list scrolls past it */
+  .duel .gside{position:sticky;top:14px}
+  .ptitle{font-size:15px;font-weight:700;margin:0 0 10px}
+  .theirbox{border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+  .duel .glquote{margin-top:0}
+  .sidecta{margin-top:12px;text-align:center}
+  .sidecta .btn{width:100%}
+  .sidecta-note{font-size:13px;color:var(--ink-soft);margin:0 0 8px}
+  tfoot .total-row td{border-top:2px solid var(--ink);border-bottom:none;font-weight:800;font-size:15px;padding-top:11px}
+  .minitrack{margin-top:7px}
+  .minibar{height:6px;background:var(--bs);border-radius:0 3px 3px 0;min-width:3px}
+  @media(max-width:720px){.duel{grid-template-columns:1fr}.duel .gside{position:static}}
 
   details.dd{margin-top:18px;border:1px solid var(--line);border-radius:12px;overflow:hidden;text-align:left}
   details.dd>summary{cursor:pointer;list-style:none;padding:15px 18px;font-weight:700;font-size:15px;background:#f8fafc;display:flex;justify-content:space-between;align-items:center}
@@ -132,15 +158,13 @@
   .leadgate{margin-bottom:16px}
   .leadgate input{width:100%;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font:inherit;background:#fff}
   .leadgate input:focus{border-color:var(--gl);outline:none;box-shadow:0 0 0 3px rgba(165,126,71,.15)}
-  .leadgate .leadnote{font-size:12px;color:var(--ink-soft);margin:7px 0 0;line-height:1.45}
-  .leadgate .leadnote a{color:var(--gl-dark)}
   .drop.locked{opacity:.5;pointer-events:none}
   .btn[disabled]{opacity:.5;cursor:not-allowed}
   footer{text-align:center;font-size:13px;color:var(--ink-soft);padding:30px 20px 50px;line-height:1.6}
   footer p{margin:4px 0}
   footer a{color:var(--gl-dark)}
   footer .adv{font-weight:700;letter-spacing:.6px;text-transform:uppercase;font-size:11px}
-  @media(max-width:560px){h1{font-size:30px}.bigblock .amt{font-size:36px}.vsbar{width:100%;justify-content:center;padding:4px 0}}
+  @media(max-width:560px){h1{font-size:30px}.vamt{font-size:28px}.badge{white-space:normal;text-align:left}}
 </style>
 </head>
 <body>
@@ -148,7 +172,7 @@
   <div class="wrap">
     <div class="brand"><a href="https://general.legal"><img src="logo_light.svg" alt="General Legal" /></a></div>
     <h1>Call BS on your legal bill.</h1>
-    <p class="sub">Upload an invoice from your law firm and see, in plain numbers, what a comparable scope of work costs at General Legal's flat fees. No hourly meter, no surprises.</p>
+    <p class="sub">Upload an invoice from your law firm to see how much you could save with General Legal's flat-fee, no-surprise model.</p>
   </div>
 </header>
 
@@ -156,10 +180,8 @@
   <!-- upload -->
   <section class="card" id="uploadCard">
     <h2>Upload your bill</h2>
-    <p class="hint">Your bill is read on your device and is not uploaded, unless you turn on AI analysis below. The email you enter is submitted so we can send your comparison and follow up.</p>
     <div class="leadgate">
       <input type="email" id="leadEmail" placeholder="Enter your email" autocomplete="email" aria-label="Email" />
-      <p class="leadnote">Enter your email to see your comparison. By continuing, you agree to our <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a> and that General Legal may email you about its services. You can unsubscribe at any time.</p>
     </div>
     <div class="drop locked" id="drop">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -168,58 +190,59 @@
         <path d="M12 18v-6"/><path d="M9.5 14.5 12 12l2.5 2.5"/>
       </svg>
       <div class="drop-title">Drag and drop your invoice here</div>
-      <div class="drop-sub">PDF format. We do the math the moment it lands.</div>
+      <div class="drop-sub">PDF only</div>
       <button type="button" class="btn primary" id="chooseBtn">Choose a PDF file</button>
       <input type="file" id="file" accept="application/pdf" />
     </div>
     <div class="status" id="status"></div>
-    <label class="aitoggle"><input type="checkbox" id="useAI" /> <span>Analyze with AI for a sharper read. When on, only the invoice text (not the file), with the letterhead and obvious identifiers removed, is sent to our server and AI provider to produce the analysis. It is processed to generate your result and is not stored by us. Leave unchecked to keep everything on your device.</span></label>
     <div class="demolink">No bill handy? <a id="demo">Run a sample bill instead.</a></div>
+    <label class="aitoggle"><input type="checkbox" id="useAI" /> <span>Analyze with AI for a sharper read &mdash; sends the invoice text to our AI provider.</span></label>
+    <p class="subnote">Bills are read in your browser. Only upload documents you have the right to share. By continuing, you agree to our <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a> and to emails from General Legal &mdash; unsubscribe anytime.</p>
+    <a class="ghbadge" href="https://github.com/kyledavis-oss/bill-redline" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+      Open source &mdash; read the code on GitHub
+    </a>
   </section>
 
   <!-- dramatized reveal -->
   <section class="card reveal hidden" id="revealCard">
-    <div class="bigrow">
-      <div class="bigblock their">
-        <div class="lbl">This invoice</div>
-        <div class="amt" id="bigTheirs">$0</div>
+    <!-- headline graphic: the two totals drawn to scale -->
+    <div class="viz">
+      <div class="vrow">
+        <div class="vhead"><span class="vname">This invoice</span><span class="vamt" id="bigTheirs">$0</span></div>
+        <div class="vbar their" id="barTheirs"></div>
       </div>
-      <div class="vsbar">vs</div>
-      <div class="bigblock ours">
-        <div class="lbl">General Legal flat fee</div>
-        <div class="amt" id="bigOurs">$0</div>
+      <div class="vrow">
+        <div class="vhead"><span class="vname">General Legal flat fee</span><span class="vamt" id="bigOurs">$0</span></div>
+        <div class="vbar ours" id="barOurs"></div>
       </div>
     </div>
     <div class="savebanner" id="saveBanner"></div>
     <div class="ainote hidden" id="aiNote"></div>
     <p class="pitch" id="pitch"></p>
 
-    <!-- the dropdown the user asked for -->
-    <details class="dd" id="compareDD">
-      <summary>See General Legal flat fees vs a typical hourly estimate</summary>
-      <div class="dd-body">
-        <table class="compare">
-          <thead>
-            <tr><th>Service</th><th class="num">General Legal</th><th class="num">Typical hourly (est.)</th><th class="num">Difference</th></tr>
-          </thead>
-          <tbody id="compareRows"></tbody>
-        </table>
-        <p class="disclaimer">General Legal prices are our published flat fees. The "typical hourly" column is an illustrative estimate for a comparable deliverable at roughly $600 to $1,000 per hour, not a quote for any specific firm. Actual cost depends on scope.</p>
+    <!-- always visible: their bill, line by line, next to the General Legal quote -->
+    <div class="duel">
+      <div>
+        <h3 class="ptitle">What this invoice billed</h3>
+        <div class="theirbox">
+          <div class="matterbar hidden" id="matterbar"></div>
+          <table class="their">
+            <thead><tr><th>Line item</th><th class="num">Amount billed</th></tr></thead>
+            <tbody id="theirRows"></tbody>
+            <tfoot><tr class="total-row"><td>Invoice total</td><td class="num" id="theirTotal">$0</td></tr></tfoot>
+          </table>
+        </div>
       </div>
-    </details>
-
-    <!-- secondary: line-by-line BS breakdown for this bill -->
-    <details class="dd" id="breakdownDD">
-      <summary>Show the line-by-line breakdown for your bill</summary>
-      <div class="dd-body">
-        <div class="matterbar hidden" id="matterbar"></div>
-        <table class="their">
-          <thead><tr><th>Line item</th><th class="num">Amount billed</th></tr></thead>
-          <tbody id="theirRows"></tbody>
-        </table>
+      <div class="gside">
+        <h3 class="ptitle">What General Legal would charge</h3>
         <div class="glquote" id="glQuote"></div>
+        <div class="sidecta">
+          <p class="sidecta-note">One flat fee, agreed up front. No hourly meter.</p>
+          <button class="btn primary" id="ctaBtnSide">Get this work done at General Legal</button>
+        </div>
       </div>
-    </details>
+    </div>
 
     <!-- secondary: edit parsed items -->
     <details class="dd" id="editDD">
@@ -235,6 +258,20 @@
         <div class="row-actions">
           <button class="btn ghost" id="addRow">Add line</button>
         </div>
+      </div>
+    </details>
+
+    <!-- reference: published flat fees vs a typical hourly estimate -->
+    <details class="dd" id="compareDD">
+      <summary>See General Legal flat fees vs a typical hourly estimate</summary>
+      <div class="dd-body">
+        <table class="compare">
+          <thead>
+            <tr><th>Service</th><th class="num">General Legal</th><th class="num">Typical hourly (est.)</th><th class="num">Difference</th></tr>
+          </thead>
+          <tbody id="compareRows"></tbody>
+        </table>
+        <p class="disclaimer">General Legal prices are our published flat fees. The "typical hourly" column is an illustrative estimate for a comparable deliverable at roughly $600 to $1,000 per hour, not a quote for any specific firm. Actual cost depends on scope.</p>
       </div>
     </details>
 
@@ -457,6 +494,7 @@ function compute(animate){
 
   setBig($("#bigTheirs"),theirs,animate);
   setBig($("#bigOurs"),gl,animate);
+  setBars(theirs,gl,animate);
 
   if(save>=0){
     if(gl<=0){
@@ -475,7 +513,8 @@ function compute(animate){
   if(aiNarrative){ aiNoteEl.innerHTML=`<b>What we noticed:</b> ${escapeHtml(aiNarrative)}`; aiNoteEl.classList.remove("hidden"); }
   else aiNoteEl.classList.add("hidden");
 
-  // line-by-line breakdown
+  // line-by-line breakdown, each line with a bar drawn to scale
+  const maxLine=Math.max(0,...items.map(i=>i.amount));
   $("#theirRows").innerHTML = items.map(it=>{
     if(it.task==="discount"){
       return `<tr><td><div class="desc credit">${escapeHtml(it.desc)}</div></td><td class="num"><span class="credit">${money(it.amount)}</span></td></tr>`;
@@ -486,8 +525,10 @@ function compute(animate){
     if(!badges) badges=`<span class="badge ok">no flags</span>`;
     const meta=[it.who,it.hours?`${it.hours} hrs`:null,it.rate?`$${Math.round(it.rate)}/hr`:null].filter(Boolean).join("  &middot;  ");
     const amt = it.amount>0 ? money(it.amount) : (it.rate?`<span class="credit">No charge</span>`:money(it.amount));
-    return `<tr><td><div class="desc">${escapeHtml(it.desc)}</div><div class="meta">${meta||"&nbsp;"}</div><div>${badges}</div></td><td class="num">${amt}</td></tr>`;
+    const bar = it.amount>0&&maxLine>0 ? `<div class="minitrack"><div class="minibar" style="width:${Math.max(it.amount/maxLine*100,2)}%"></div></div>` : "";
+    return `<tr><td><div class="desc">${escapeHtml(it.desc)}</div><div class="meta">${meta||"&nbsp;"}</div><div>${badges}</div>${bar}</td><td class="num">${amt}</td></tr>`;
   }).join("");
+  $("#theirTotal").textContent=money(theirs);
 
   const bundledCount = items.filter(i=>i.task==="bundled").length;
   let q = deliverables.map(d=>`<div class="glline"><span>${d.label}</span><span class="fee">${money(d.fee)}</span></div>`).join("");
@@ -499,6 +540,19 @@ function compute(animate){
   const mb=$("#matterbar");
   if(matter){ mb.innerHTML=`<b>Matter:</b> ${escapeHtml(matter)}`; mb.classList.remove("hidden"); }
   else mb.classList.add("hidden");
+}
+
+// The two headline bars share one scale: the larger total spans the full width
+// and the other is drawn in proportion, so the gap is visible at a glance.
+function setBars(theirs,gl,animate){
+  const maxv=Math.max(theirs,gl,1);
+  const w=v=>v>0?Math.max(v/maxv*100,0.75)+"%":"0%";
+  const bt=$("#barTheirs"), bo=$("#barOurs");
+  const apply=()=>{ bt.style.width=w(theirs); bo.style.width=w(gl); };
+  if(animate){
+    bt.style.width="0%"; bo.style.width="0%";
+    requestAnimationFrame(()=>requestAnimationFrame(apply)); // let the 0% land first so the transition runs
+  }else apply();
 }
 
 function setBig(el,val,animate){
@@ -797,14 +851,12 @@ $("#demo").addEventListener("click",()=>{
   matter="Sample matter (demonstration only)"; aiNarrative="";
   billContext=DEMO.map(d=>`${d.desc} | ${d.hours} hrs @ $${d.rate}/hr | $${d.amount}`).join("\n");
   items=DEMO.map(d=>mkItem(d.desc,d.hours,d.rate,d.amount,d.task,d.who)); reveal();
-  // The demo is fabricated data, not a real invoice, so open the breakdown by
-  // default instead of leaving it collapsed behind an accordion the visitor
-  // has no reason to know is there.
-  $("#breakdownDD").open=true;
 });
 $("#addRow").addEventListener("click",addRow);
 $("#restartBtn").addEventListener("click",restart);
-$("#ctaBtn").addEventListener("click",()=>{ window.location.href="mailto:hello@general.legal?subject=Get%20this%20done%20at%20General%20Legal"; });
+const goCta=()=>{ window.location.href="mailto:hello@general.legal?subject=Get%20this%20done%20at%20General%20Legal"; };
+$("#ctaBtn").addEventListener("click",goCta);
+$("#ctaBtnSide").addEventListener("click",goCta);
 
 /* ---------- required email gate + consented lead capture ---------- */
 function updateGate(){

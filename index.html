@@ -159,10 +159,9 @@
   .fancy-sep{display:flex;align-items:center;gap:12px;margin:14px 0;color:var(--gl)}
   .fancy-sep::before,.fancy-sep::after{content:"";flex:1;height:1px;background:var(--line)}
   .fancy-sep span{font-size:9px;line-height:1}
-  .leadgate{margin-bottom:0}
-  .leadgate input{width:100%;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font:inherit;background:#fff}
-  .leadgate input:focus{border-color:var(--gl);outline:none;box-shadow:0 0 0 3px rgba(165,126,71,.15)}
-  .drop.locked{opacity:.5;pointer-events:none}
+  .gaterow{display:flex;gap:10px;flex-wrap:wrap}
+  .gaterow input{flex:1;min-width:220px;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font:inherit;background:#fff}
+  .gaterow input:focus{border-color:var(--gl);outline:none;box-shadow:0 0 0 3px rgba(165,126,71,.15)}
   .btn[disabled]{opacity:.5;cursor:not-allowed}
   footer{text-align:center;font-size:13px;color:var(--ink-soft);padding:30px 20px 50px;line-height:1.6}
   footer p{margin:4px 0}
@@ -185,11 +184,7 @@
   <section class="card" id="uploadCard">
     <h2>Upload your bill:</h2>
     <div class="h2rule"></div>
-    <div class="leadgate">
-      <input type="email" id="leadEmail" placeholder="Enter your email" autocomplete="email" aria-label="Email" />
-    </div>
-    <div class="fancy-sep" aria-hidden="true"><span>&#9670;</span></div>
-    <div class="drop locked" id="drop">
+    <div class="drop" id="drop">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/>
         <path d="M14 3v5h5"/>
@@ -202,12 +197,25 @@
     </div>
     <div class="status" id="status"></div>
     <div class="demolink">No bill handy? <a id="demo">Run a sample bill instead.</a></div>
+    <div class="fancy-sep" aria-hidden="true"><span>&#9670;</span></div>
     <label class="aitoggle"><input type="checkbox" id="useAI" /> <span>Analyze with AI for a sharper read &mdash; sends the invoice text to our AI provider.</span></label>
-    <p class="subnote">Bills are read in your browser. Only upload documents you have the right to share. By continuing, you agree to our <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a> and to emails from General Legal &mdash; unsubscribe anytime.</p>
+    <p class="subnote">Bills are read in your browser. Only upload documents you have the right to share.</p>
     <a class="ghbadge" href="https://github.com/kyledavis-oss/bill-redline" target="_blank" rel="noopener">
       <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
       Open source &mdash; read the code on GitHub
     </a>
+  </section>
+
+  <!-- email gate: shown after a bill is parsed, before the results -->
+  <section class="card hidden" id="gateCard">
+    <h2>Your comparison is ready:</h2>
+    <div class="h2rule"></div>
+    <form class="gaterow" id="gateForm">
+      <input type="email" id="leadEmail" placeholder="Enter your email" autocomplete="email" aria-label="Email" />
+      <button type="submit" class="btn primary">Show my comparison</button>
+    </form>
+    <div class="status" id="gateStatus"></div>
+    <p class="subnote">By continuing, you agree to our <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a> and to emails from General Legal &mdash; unsubscribe anytime.</p>
   </section>
 
   <!-- dramatized reveal -->
@@ -580,8 +588,23 @@ function renderCompare(){
 }
 
 /* ---------- reveal flow ---------- */
+// The email gate sits between parsing and results: the visitor uploads first,
+// then trades an email to see the comparison. Once an email is on file,
+// later bills in the same session go straight through.
 function reveal(){
+  if(!emailOk(leadEmail)){
+    $("#uploadCard").classList.add("hidden");
+    $("#gateCard").classList.remove("hidden");
+    $("#leadEmail").focus();
+    window.scrollTo({top:0,behavior:"smooth"});
+    return;
+  }
+  captureLead();
+  doReveal();
+}
+function doReveal(){
   $("#uploadCard").classList.add("hidden");
+  $("#gateCard").classList.add("hidden");
   $("#revealCard").classList.remove("hidden");
   chatMessages=[]; $("#chatLog").innerHTML=""; $("#chatText").value=""; $("#chatSuggest").style.display="";
   renderRows();
@@ -591,6 +614,7 @@ function reveal(){
 function restart(){
   items=[]; matter=""; aiNarrative=""; billContext=""; chatMessages=[];
   $("#revealCard").classList.add("hidden");
+  $("#gateCard").classList.add("hidden");
   $("#uploadCard").classList.remove("hidden");
   $("#status").textContent="";
   $("#file").value="";
@@ -760,8 +784,6 @@ $("#chooseBtn").addEventListener("click",ev=>{ ev.stopPropagation(); fileInput.c
 fileInput.addEventListener("change",e=>{const f=e.target.files[0]; if(f) handleFile(f);});
 
 async function handleFile(f){
-  if(!emailOk(leadEmail)){ $("#status").textContent="Please enter your email above to continue."; $("#leadEmail").focus(); return; }
-  captureLead();
   if(f.type!=="application/pdf"){$("#status").textContent="Please choose a PDF invoice.";return;}
   matter=""; aiNarrative=""; billContext="";
   let parsed;
@@ -852,8 +874,6 @@ $("#chatForm").addEventListener("submit",e=>{ e.preventDefault(); sendChat($("#c
 $("#chatSuggest").querySelectorAll(".chip").forEach(b=>b.addEventListener("click",()=>sendChat(b.textContent)));
 
 $("#demo").addEventListener("click",()=>{
-  if(!emailOk(leadEmail)){ $("#status").textContent="Please enter your email above to continue."; $("#leadEmail").focus(); return; }
-  captureLead();
   matter="Sample matter (demonstration only)"; aiNarrative="";
   billContext=DEMO.map(d=>`${d.desc} | ${d.hours} hrs @ $${d.rate}/hr | $${d.amount}`).join("\n");
   items=DEMO.map(d=>mkItem(d.desc,d.hours,d.rate,d.amount,d.task,d.who)); reveal();
@@ -864,17 +884,7 @@ const goCta=()=>{ window.location.href="mailto:hello@general.legal?subject=Get%2
 $("#ctaBtn").addEventListener("click",goCta);
 $("#ctaBtnSide").addEventListener("click",goCta);
 
-/* ---------- required email gate + consented lead capture ---------- */
-function updateGate(){
-  const ok=emailOk(leadEmail);
-  $("#drop").classList.toggle("locked",!ok);
-  $("#chooseBtn").disabled=!ok;
-  // Stays clickable even when gated: the click handler below already shows
-  // "Please enter your email above to continue" and focuses the field, which
-  // only works if the click can actually reach it. A dimmed-but-inert link
-  // (pointer-events:none) just looks broken with no explanation.
-  $("#demo").style.opacity = ok ? "" : ".7";
-}
+/* ---------- post-parse email gate + consented lead capture ---------- */
 async function captureLead(){
   if(leadSent || !emailOk(leadEmail)) return;
   leadSent=true;
@@ -883,10 +893,15 @@ async function captureLead(){
       body:JSON.stringify({email:leadEmail.trim(),consent:true})});
   }catch(_){ /* non-blocking: never stop the user from seeing results */ }
 }
-$("#leadEmail").addEventListener("input",e=>{ leadEmail=e.target.value; updateGate(); });
+$("#gateForm").addEventListener("submit",e=>{
+  e.preventDefault();
+  leadEmail=$("#leadEmail").value;
+  if(!emailOk(leadEmail)){ $("#gateStatus").textContent="Please enter a valid email to continue."; return; }
+  $("#gateStatus").textContent="";
+  reveal();
+});
 
 renderCompare();
-updateGate();
 </script>
 </body>
 </html>

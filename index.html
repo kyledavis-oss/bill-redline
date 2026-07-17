@@ -17,7 +17,7 @@
 <meta name="twitter:title" content="Call BS on your legal bill" />
 <meta name="twitter:description" content="Upload your law firm's invoice and see what it should have cost at flat fees." />
 <meta name="twitter:image" content="https://billcheck.general.legal/og.png" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="/vendor/pdf.min.js"></script>
 <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
 <script defer src="/_vercel/insights/script.js"></script>
 <link rel="icon" href="logo_mark_dark.svg" />
@@ -241,8 +241,7 @@
 </footer>
 
 <script>
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+pdfjsLib.GlobalWorkerOptions.workerSrc = "/vendor/pdf.worker.min.js";
 
 /* ---------- General Legal flat-fee schedule (from general.legal/pricing) ---------- */
 const SERVICES = [

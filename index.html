@@ -4,7 +4,22 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Call BS on Your Legal Bill | General Legal</title>
+<meta name="description" content="Upload your law firm's invoice and see what a comparable scope of work costs at General Legal's flat fees. Free, open source, and read in your browser." />
+<link rel="canonical" href="https://billcheck.general.legal/" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://billcheck.general.legal/" />
+<meta property="og:title" content="Call BS on your legal bill" />
+<meta property="og:description" content="Upload your law firm's invoice and see what it should have cost at flat fees." />
+<meta property="og:image" content="https://billcheck.general.legal/og.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Call BS on your legal bill" />
+<meta name="twitter:description" content="Upload your law firm's invoice and see what it should have cost at flat fees." />
+<meta name="twitter:image" content="https://billcheck.general.legal/og.png" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
 <link rel="icon" href="logo_mark_dark.svg" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -272,7 +287,6 @@ let matter = "";
 let aiNarrative = "";
 let leadEmail = "";
 let leadSent = false;
-let nextId = 1;
 const emailOk = e=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((e||"").trim());
 const $ = s=>document.querySelector(s);
 
@@ -334,7 +348,7 @@ function flags(it){
 const money = n => (n<0?"-$":"$")+Math.abs(Math.round(n)).toLocaleString("en-US");
 function escapeHtml(s){return String(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
 function mkItem(desc,hours,rate,amount,task,who){
-  return {id:nextId++,desc,who:who||"",hours:hours||0,rate:rate||0,amount:amount||0,task:task||classify(desc)};
+  return {desc,who:who||"",hours:hours||0,rate:rate||0,amount:amount||0,task:task||classify(desc)};
 }
 
 /* ---------- compute + render the reveal ---------- */
@@ -430,6 +444,7 @@ function reveal(){
   updateLeadUI();
   $("#uploadCard").classList.add("hidden");
   $("#revealCard").classList.remove("hidden");
+  va("event",{name:"results_viewed"});
   compute(true);
   window.scrollTo({top:0,behavior:"smooth"});
 }
@@ -637,10 +652,12 @@ async function handleFile(f){
     $("#status").textContent="Could not detect line items in that PDF. Please try a text-based (not scanned) invoice.";
     return;
   }
+  va("event",{name:"bill_parsed",data:{source:"upload"}});
   items=parsed.items; reveal();
 }
 
 $("#demo").addEventListener("click",()=>{
+  va("event",{name:"bill_parsed",data:{source:"sample"}});
   matter="Sample matter (demonstration only)"; aiNarrative="";
   items=DEMO.map(d=>mkItem(d.desc,d.hours,d.rate,d.amount,d.task,d.who)); reveal();
 });
@@ -651,6 +668,7 @@ $("#ctaBtnSide").addEventListener("click",()=>{ window.location.href="mailto:hel
 async function captureLead(){
   if(leadSent || !emailOk(leadEmail)) return;
   leadSent=true;
+  va("event",{name:"lead_submitted"});
   try{
     await fetch("/api/lead",{method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({email:leadEmail.trim(),consent:true})});

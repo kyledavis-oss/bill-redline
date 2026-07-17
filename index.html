@@ -134,24 +134,6 @@
   .gltotal{display:flex;justify-content:space-between;padding-top:11px;margin-top:5px;border-top:2px solid var(--gl);font-weight:800;font-size:16px;color:var(--gl-dark)}
   .freenote{font-size:12px;color:var(--gl-dark);margin-top:9px}
 
-  .chat{margin-top:28px;border-top:1px solid var(--line);padding-top:20px}
-  .chat-suggest{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
-  .chat-suggest .chip{border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 12px;font-size:13px;color:var(--ink-soft);cursor:pointer;transition:.15s}
-  .chat-suggest .chip:hover{border-color:var(--gl);color:var(--gl-dark);background:var(--gl-soft)}
-  .chat-log{display:flex;flex-direction:column;gap:16px;margin-bottom:16px}
-  .chat-log:empty{display:none}
-  .msg{display:flex;gap:10px;max-width:92%}
-  .msg.ai{align-self:flex-start}
-  .msg.user{align-self:flex-end}
-  .avatar{flex:0 0 auto;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;letter-spacing:.3px;background:var(--gl-soft);color:var(--gl-dark);margin-top:1px}
-  .bubble{padding:10px 14px;border-radius:12px;font-size:14px;line-height:1.55;white-space:pre-wrap}
-  .msg.ai .bubble{background:#f8fafc;border:1px solid var(--line);color:var(--ink)}
-  .msg.user .bubble{background:var(--ink);color:#f4f0ec}
-  .chat-input{display:flex;gap:8px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:12px;padding:6px 6px 6px 15px;transition:.15s}
-  .chat-input:focus-within{border-color:var(--gl);box-shadow:0 0 0 3px rgba(13,148,136,.12)}
-  .chat-input input{flex:1;border:none;outline:none;background:transparent;font:inherit;padding:8px 0}
-  .chat-input .btn{padding:9px 18px;border-radius:9px}
-  .chat-input .btn:disabled{opacity:.5;cursor:not-allowed}
   .cta-row{margin-top:22px}
   .disclaimer{font-size:12px;color:var(--ink-soft);margin-top:16px;line-height:1.5}
   .hidden{display:none}
@@ -285,21 +267,6 @@
       </div>
     </details>
 
-    <div class="chat" id="chat">
-      <div class="panel-title" style="color:var(--gl-dark)">Ask about legal pricing</div>
-      <div class="chat-suggest" id="chatSuggest">
-        <button type="button" class="chip">How do flat fees work?</button>
-        <button type="button" class="chip">What is block billing?</button>
-        <button type="button" class="chip">How would General Legal price this?</button>
-      </div>
-      <div class="chat-log" id="chatLog"></div>
-      <form class="chat-input" id="chatForm">
-        <input id="chatText" autocomplete="off" placeholder="Ask a general question about legal pricing..." />
-        <button type="submit" class="btn primary" id="chatSend">Ask</button>
-      </form>
-      <p class="disclaimer">General information only. This is not legal advice, does not create an attorney-client relationship, and cannot tell you how to handle a dispute with your current counsel. Answers are AI-generated and may be wrong.</p>
-    </div>
-
     <div class="cta-row">
       <button class="btn primary" id="ctaBtn">Get this work done at General Legal</button>
       <button class="btn ghost" id="restartBtn">Try another bill</button>
@@ -379,9 +346,6 @@ const DEMO = [
 let items = [];
 let matter = "";
 let aiNarrative = "";
-let billContext = "";
-let chatMessages = [];
-let chatBusy = false;
 let leadEmail = "";
 let leadSent = false;
 let nextId = 1;
@@ -588,13 +552,12 @@ function reveal(){
   updateLeadUI();
   $("#uploadCard").classList.add("hidden");
   $("#revealCard").classList.remove("hidden");
-  chatMessages=[]; $("#chatLog").innerHTML=""; $("#chatText").value=""; $("#chatSuggest").style.display="";
   renderRows();
   compute(true);
   window.scrollTo({top:0,behavior:"smooth"});
 }
 function restart(){
-  items=[]; matter=""; aiNarrative=""; billContext=""; chatMessages=[];
+  items=[]; matter=""; aiNarrative="";
   $("#revealCard").classList.add("hidden");
   $("#uploadCard").classList.remove("hidden");
   $("#status").textContent="";
@@ -766,11 +729,10 @@ fileInput.addEventListener("change",e=>{const f=e.target.files[0]; if(f) handleF
 
 async function handleFile(f){
   if(f.type!=="application/pdf"){$("#status").textContent="Please choose a PDF invoice.";return;}
-  matter=""; aiNarrative=""; billContext="";
+  matter=""; aiNarrative="";
   let parsed;
   try{
     parsed=await parsePdf(f);
-    billContext=redactForAI(parsed.text||"");
   }catch(err){
     console.error(err);
     $("#status").textContent="Had trouble reading that PDF. Opening manual entry instead.";
@@ -800,63 +762,8 @@ async function handleFile(f){
 }
 function addRow(){ items.push(mkItem("",0,0,0,"other")); renderRows(); compute(false); }
 
-/* ---------- streaming Q&A chat (/api/ask) ---------- */
-function addBubble(role,text){
-  const wrap=document.createElement("div");
-  wrap.className="msg "+(role==="user"?"user":"ai");
-  if(role!=="user"){
-    const av=document.createElement("div");
-    av.className="avatar"; av.textContent="GL";
-    wrap.appendChild(av);
-  }
-  const b=document.createElement("div");
-  b.className="bubble"; b.textContent=text;
-  wrap.appendChild(b);
-  $("#chatLog").appendChild(wrap);
-  $("#chatLog").scrollTop=$("#chatLog").scrollHeight;
-  return b;
-}
-async function sendChat(text){
-  text=(text||"").trim();
-  if(!text || chatBusy) return;
-  chatBusy=true; $("#chatSend").disabled=true;
-  $("#chatSuggest").style.display="none";
-  $("#chatText").value="";
-  chatMessages.push({role:"user",content:text});
-  addBubble("user",text);
-  const aiEl=addBubble("ai","…");
-  let acc="";
-  try{
-    const ctx=billContext;
-    const r=await fetch("/api/ask",{
-      method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({billText:ctx,messages:chatMessages})
-    });
-    if(!r.ok || !r.body) throw new Error("HTTP "+r.status);
-    const reader=r.body.getReader(); const dec=new TextDecoder();
-    while(true){
-      const {done,value}=await reader.read();
-      if(done) break;
-      acc+=dec.decode(value,{stream:true});
-      aiEl.textContent=acc;
-      $("#chatLog").scrollTop=$("#chatLog").scrollHeight;
-    }
-    if(!acc.trim()){ aiEl.textContent="Sorry, I could not generate an answer just now."; chatMessages.pop(); }
-    else chatMessages.push({role:"assistant",content:acc});
-  }catch(err){
-    console.error(err);
-    aiEl.textContent="The assistant is unavailable right now. Make sure the AI server is running, then try again.";
-    chatMessages.pop();
-  }finally{
-    chatBusy=false; $("#chatSend").disabled=false; $("#chatText").focus();
-  }
-}
-$("#chatForm").addEventListener("submit",e=>{ e.preventDefault(); sendChat($("#chatText").value); });
-$("#chatSuggest").querySelectorAll(".chip").forEach(b=>b.addEventListener("click",()=>sendChat(b.textContent)));
-
 $("#demo").addEventListener("click",()=>{
   matter="Sample matter (demonstration only)"; aiNarrative="";
-  billContext=DEMO.map(d=>`${d.desc} | ${d.hours} hrs @ $${d.rate}/hr | $${d.amount}`).join("\n");
   items=DEMO.map(d=>mkItem(d.desc,d.hours,d.rate,d.amount,d.task,d.who)); reveal();
 });
 $("#addRow").addEventListener("click",addRow);

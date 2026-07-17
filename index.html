@@ -212,7 +212,6 @@
     </div>
 
     <div class="cta-row">
-      <button class="btn primary" id="ctaBtn">Get this work done at General Legal</button>
       <button class="btn ghost" id="restartBtn">Try another bill</button>
     </div>
     <p class="disclaimer">This is not legal advice.</p>
@@ -646,9 +645,7 @@ $("#demo").addEventListener("click",()=>{
   items=DEMO.map(d=>mkItem(d.desc,d.hours,d.rate,d.amount,d.task,d.who)); reveal();
 });
 $("#restartBtn").addEventListener("click",restart);
-const goCta=()=>{ window.location.href="mailto:hello@general.legal?subject=Get%20this%20done%20at%20General%20Legal"; };
-$("#ctaBtn").addEventListener("click",goCta);
-$("#ctaBtnSide").addEventListener("click",goCta);
+$("#ctaBtnSide").addEventListener("click",()=>{ window.location.href="mailto:hello@general.legal?subject=Get%20this%20done%20at%20General%20Legal"; });
 
 /* ---------- post-parse email gate + consented lead capture ---------- */
 async function captureLead(){

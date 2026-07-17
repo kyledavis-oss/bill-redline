@@ -29,7 +29,6 @@
   main{margin-top:-36px;padding-bottom:80px}
   .card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:26px;margin-bottom:22px}
   .card h2{margin:0 0 4px;font-size:20px}
-  .card .hint{color:var(--ink-soft);font-size:14px;margin:0 0 18px}
   .drop{border:2px dashed #cbd5e1;border-radius:14px;padding:34px 24px;text-align:center;transition:.15s;background:#fcfdfe}
   .drop.drag{border-color:var(--gl);background:var(--gl-soft)}
   .drop svg{width:38px;height:38px;color:#94a3b8;margin-bottom:10px}
@@ -87,34 +86,10 @@
   .minibar{height:6px;background:var(--bs);border-radius:0 3px 3px 0;min-width:3px}
   @media(max-width:720px){.duel{grid-template-columns:1fr}.duel .gside{position:static}}
 
-  details.dd{margin-top:18px;border:1px solid var(--line);border-radius:12px;overflow:hidden;text-align:left}
-  details.dd>summary{cursor:pointer;list-style:none;padding:15px 18px;font-weight:700;font-size:15px;background:#f8fafc;display:flex;justify-content:space-between;align-items:center}
-  details.dd>summary::-webkit-details-marker{display:none}
-  details.dd>summary::after{content:"v";font-family:inherit;color:#94a3b8;transition:.2s;font-weight:700}
-  details.dd[open]>summary::after{transform:rotate(180deg)}
-  details.dd>summary:hover{background:#f1f5f9}
-  .dd-body{padding:6px 18px 18px}
-
   table{width:100%;border-collapse:collapse;font-size:14px}
   th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}
   th{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-soft);font-weight:700}
   td.num,th.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
-  .compare .gl{color:var(--gl-dark);font-weight:800}
-  .compare .big{color:var(--bs)}
-  .compare .save{color:var(--gl-dark);font-weight:700}
-  .compare tr.head-note td{border:none;color:var(--ink-soft);font-size:12px;padding-top:0}
-
-  /* editable items */
-  .dol{color:#94a3b8;margin-right:1px}
-  input.cell,select.cell{border:1px solid transparent;background:transparent;padding:6px;border-radius:8px;font:inherit;color:inherit}
-  input.cell{width:100%}
-  input.cell:focus,select.cell:focus{border-color:var(--gl);background:#fff;outline:none}
-  input.cell.amt{text-align:right;width:78px}
-  select.cell{border:1px solid var(--line);background:#fff;font-size:12px;max-width:230px}
-  td.del{width:30px;text-align:center}
-  .x{cursor:pointer;color:#cbd5e1;font-weight:700;border:none;background:none;font-size:16px}
-  .x:hover{color:var(--bs)}
-  .row-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;align-items:center}
 
   /* line-by-line redline */
   .matterbar{font-size:13px;color:var(--ink-soft);margin:0 0 12px;padding:10px 12px;background:#f8fafc;border:1px solid var(--line);border-radius:10px}
@@ -236,48 +211,11 @@
       </div>
     </div>
 
-    <!-- secondary: edit parsed items -->
-    <details class="dd" id="editDD">
-      <summary>Review or edit the parsed line items</summary>
-      <div class="dd-body">
-        <p class="hint">Change the matched General Legal service if we guessed wrong. The numbers update as you go.</p>
-        <table>
-          <thead>
-            <tr><th>Description</th><th class="num">Hrs</th><th class="num">Rate</th><th class="num">Amount</th><th>General Legal service</th><th class="del"></th></tr>
-          </thead>
-          <tbody id="rows"></tbody>
-        </table>
-        <div class="row-actions">
-          <button class="btn ghost" id="addRow">Add line</button>
-        </div>
-      </div>
-    </details>
-
-    <!-- reference: published flat fees vs a typical hourly estimate -->
-    <details class="dd" id="compareDD">
-      <summary>See General Legal flat fees vs a typical hourly estimate</summary>
-      <div class="dd-body">
-        <table class="compare">
-          <thead>
-            <tr><th>Service</th><th class="num">General Legal</th><th class="num">Typical hourly (est.)</th><th class="num">Difference</th></tr>
-          </thead>
-          <tbody id="compareRows"></tbody>
-        </table>
-        <p class="disclaimer">General Legal prices are our published flat fees. The "typical hourly" column is an illustrative estimate for a comparable deliverable at roughly $600 to $1,000 per hour, not a quote for any specific firm. Actual cost depends on scope.</p>
-      </div>
-    </details>
-
     <div class="cta-row">
       <button class="btn primary" id="ctaBtn">Get this work done at General Legal</button>
       <button class="btn ghost" id="restartBtn">Try another bill</button>
     </div>
-    <p class="disclaimer">
-      This is an illustrative cost comparison, not legal advice, not a binding quote, and not an assertion that
-      any firm overbilled or did anything improper. Flat fees shown are General Legal's standard published rates
-      for the matched service type; complex or high-volume matters may be quoted differently. Bill parsing is
-      automated and may misread line items, so review them before relying on this. Using this tool does not create
-      an attorney-client relationship.
-    </p>
+    <p class="disclaimer">This is not legal advice.</p>
   </section>
 </main>
 
@@ -319,19 +257,6 @@ const SERVICES = [
 const feeMap = Object.fromEntries(SERVICES.map(s=>[s.key,s.fee]));
 const labelOf = k => (SERVICES.find(s=>s.key===k)||{}).label || k;
 const NO_DELIVERABLE = new Set(["bundled","discount",""]);
-
-/* ---------- General Legal vs average BigLaw (for the dropdown) ---------- */
-const COMPARE = [
-  {svc:"NDA or confidentiality agreement", gl:250,  big:1500},
-  {svc:"Short contract review",            gl:250,  big:1500},
-  {svc:"Standard contract review",         gl:500,  big:3500},
-  {svc:"Contract review plus negotiation", gl:1000, big:7500},
-  {svc:"Offer letter",                     gl:250,  big:1200},
-  {svc:"Basic research memo",              gl:1000, big:5500},
-  {svc:"Smaller drafting project",         gl:1500, big:8000},
-  {svc:"Foundational docs (ToS, Privacy, MSA)", gl:2000, big:15000},
-  {svc:"Employee handbook",                gl:2500, big:12000}
-];
 
 /* ---------- a generic demo bill (not a real client matter) ---------- */
 const DEMO = [
@@ -411,44 +336,6 @@ const money = n => (n<0?"-$":"$")+Math.abs(Math.round(n)).toLocaleString("en-US"
 function escapeHtml(s){return String(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
 function mkItem(desc,hours,rate,amount,task,who){
   return {id:nextId++,desc,who:who||"",hours:hours||0,rate:rate||0,amount:amount||0,task:task||classify(desc)};
-}
-
-/* ---------- editable items table ---------- */
-function taskOptions(sel){
-  return SERVICES.filter(s=>s.key!=="discount")
-    .map(s=>`<option value="${s.key}" ${s.key===sel?"selected":""}>${s.label}${s.fee?` (${money(s.fee)})`:""}</option>`).join("");
-}
-function renderRows(){
-  $("#rows").innerHTML = items.map(it=>{
-    if(it.task==="discount"){
-      return `<tr data-id="${it.id}">
-        <td><input class="cell" data-f="desc" value="${escapeHtml(it.desc)}"/></td>
-        <td class="num"></td><td class="num"></td>
-        <td class="num"><span class="dol">$</span><input class="cell amt" data-f="amount" value="${it.amount}"/></td>
-        <td><em style="color:var(--gl-dark);font-size:12px">Credit on their bill</em></td>
-        <td class="del"><button class="x">&times;</button></td>
-      </tr>`;
-    }
-    return `<tr data-id="${it.id}">
-      <td><input class="cell" data-f="desc" value="${escapeHtml(it.desc)}" placeholder="e.g. Draft mutual NDA"/></td>
-      <td class="num"><input class="cell amt" data-f="hours" value="${it.hours||""}" style="width:50px"/></td>
-      <td class="num"><span class="dol">$</span><input class="cell amt" data-f="rate" value="${it.rate||""}" style="width:64px"/></td>
-      <td class="num"><span class="dol">$</span><input class="cell amt" data-f="amount" value="${it.amount||""}"/></td>
-      <td><select class="cell taskpick" data-f="task">${taskOptions(it.task)}</select></td>
-      <td class="del"><button class="x">&times;</button></td>
-    </tr>`;
-  }).join("");
-  $("#rows").querySelectorAll("input.cell,select.cell").forEach(el=>{
-    el.addEventListener("input",e=>{
-      const tr=e.target.closest("tr"); const it=items.find(i=>i.id==tr.dataset.id);
-      const f=e.target.dataset.f; let v=e.target.value;
-      if(["hours","rate","amount"].includes(f)) v=parseFloat(String(v).replace(/[^0-9.\-]/g,""))||0;
-      it[f]=v; compute(false);
-    });
-  });
-  $("#rows").querySelectorAll(".x").forEach(b=>b.addEventListener("click",e=>{
-    const id=e.target.closest("tr").dataset.id; items=items.filter(i=>i.id!=id); renderRows(); compute(false);
-  }));
 }
 
 /* ---------- compute + render the reveal ---------- */
@@ -539,20 +426,11 @@ function setBig(el,val,animate){
   })(start);
 }
 
-function renderCompare(){
-  $("#compareRows").innerHTML = COMPARE.map(c=>`
-    <tr><td>${c.svc}</td>
-      <td class="num gl">${money(c.gl)}</td>
-      <td class="num big">${money(c.big)}</td>
-      <td class="num save">${money(c.big-c.gl)}</td></tr>`).join("");
-}
-
 /* ---------- reveal flow ---------- */
 function reveal(){
   updateLeadUI();
   $("#uploadCard").classList.add("hidden");
   $("#revealCard").classList.remove("hidden");
-  renderRows();
   compute(true);
   window.scrollTo({top:0,behavior:"smooth"});
 }
@@ -632,7 +510,10 @@ function applyAIResult(data){
     li.description||"", li.hours||0, li.rate||0, li.amount||0,
     valid.has(li.gl_service)?li.gl_service:"other", li.professional||""
   ));
-  if(!items.length) items=[mkItem("",0,0,0,"other")];
+  if(!items.length){
+    $("#status").textContent="Could not detect line items in that PDF. Please try a text-based (not scanned) invoice.";
+    return;
+  }
   $("#status").textContent="";
   reveal();
 }
@@ -735,8 +616,8 @@ async function handleFile(f){
     parsed=await parsePdf(f);
   }catch(err){
     console.error(err);
-    $("#status").textContent="Had trouble reading that PDF. Opening manual entry instead.";
-    items=[mkItem("",0,0,0,"other")]; reveal(); $("#editDD").open=true; return;
+    $("#status").textContent="Had trouble reading that PDF. Please try a different invoice file.";
+    return;
   }
   // Optional AI path: send extracted text to the backend for a smarter read.
   const useAI = $("#useAI") && $("#useAI").checked;
@@ -754,19 +635,16 @@ async function handleFile(f){
   }
   matter = parsed.matter;
   if(!parsed.items.length){
-    $("#status").textContent="Could not auto-detect line items in that PDF. Opening manual entry so you can add them.";
-    items=[mkItem("",0,0,0,"other")]; reveal(); $("#editDD").open=true;
-  }else{
-    items=parsed.items; reveal();
+    $("#status").textContent="Could not detect line items in that PDF. Please try a text-based (not scanned) invoice.";
+    return;
   }
+  items=parsed.items; reveal();
 }
-function addRow(){ items.push(mkItem("",0,0,0,"other")); renderRows(); compute(false); }
 
 $("#demo").addEventListener("click",()=>{
   matter="Sample matter (demonstration only)"; aiNarrative="";
   items=DEMO.map(d=>mkItem(d.desc,d.hours,d.rate,d.amount,d.task,d.who)); reveal();
 });
-$("#addRow").addEventListener("click",addRow);
 $("#restartBtn").addEventListener("click",restart);
 const goCta=()=>{ window.location.href="mailto:hello@general.legal?subject=Get%20this%20done%20at%20General%20Legal"; };
 $("#ctaBtn").addEventListener("click",goCta);
@@ -795,8 +673,6 @@ $("#leadForm").addEventListener("submit",async e=>{
   await captureLead();
   updateLeadUI();
 });
-
-renderCompare();
 </script>
 </body>
 </html>

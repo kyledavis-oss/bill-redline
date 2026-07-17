@@ -1,7 +1,7 @@
 # Deploying (Phase 1: AI analysis)
 
-The site is a static `index.html` plus two serverless functions:
-`api/analyze.js` (structured redline) and `api/ask.js` (streaming Q&A chat).
+The site is a static `index.html` plus a serverless function,
+`api/analyze.js` (structured redline).
 The Anthropic API key lives only on the server and is never sent to the browser.
 
 ## What runs where

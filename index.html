@@ -382,8 +382,11 @@ function compute(animate){
     }
     $("#pitch").textContent="A comparable scope of work, priced as one flat fee agreed up front. No hourly meter.";
   }else{
-    $("#saveBanner").innerHTML=`This invoice is below General Legal's typical flat fee for this scope by <b>${money(-save)}</b>.`;
-    $("#pitch").textContent="On a small matter, hourly and flat-fee pricing land close together. A flat fee still fixes the price up front.";
+    // General Legal's flat fee exceeds this (typically small or partial) invoice.
+    // Don't surface a "you'd pay more" figure; state the flat fee plainly and
+    // sell the thing a flat fee actually gives you on a small matter: certainty.
+    $("#saveBanner").innerHTML=`General Legal's flat fee for this scope is <b>${money(gl)}</b>, one price agreed up front.`;
+    $("#pitch").textContent="On a small matter like this, a flat fee is about certainty: the price is fixed no matter how many hours the work takes.";
   }
 
   const aiNoteEl=$("#aiNote");
@@ -419,13 +422,17 @@ function compute(animate){
   else mb.classList.add("hidden");
 }
 
-// The two headline bars share one scale: the larger total spans the full width
-// and the other is drawn in proportion, so the gap is visible at a glance.
+// The two headline bars share one scale: the invoice total spans the full width
+// and the flat fee is drawn in proportion, so the gap is visible at a glance.
+// The flat-fee bar is capped at parity: on a small matter where General Legal's
+// flat fee exceeds this invoice, the bar never renders LONGER than the invoice's
+// (that would read as "we cost more"). The dollar figures above stay truthful.
 function setBars(theirs,gl,animate){
-  const maxv=Math.max(theirs,gl,1);
+  const glBar=Math.min(gl,theirs);
+  const maxv=Math.max(theirs,glBar,1);
   const w=v=>v>0?Math.max(v/maxv*100,0.75)+"%":"0%";
   const bt=$("#barTheirs"), bo=$("#barOurs");
-  const apply=()=>{ bt.style.width=w(theirs); bo.style.width=w(gl); };
+  const apply=()=>{ bt.style.width=w(theirs); bo.style.width=w(glBar); };
   if(animate){
     bt.style.width="0%"; bo.style.width="0%";
     requestAnimationFrame(()=>requestAnimationFrame(apply)); // let the 0% land first so the transition runs

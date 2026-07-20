@@ -527,10 +527,22 @@ function applyAIResult(data){
   aiNarrative = (data && data.narrative) || "";
   const valid = new Set(SERVICES.map(s=>s.key));
   const lines = (data && data.line_items) || [];
-  items = lines.map(li=>mkItem(
-    li.description||"", li.hours||0, li.rate||0, li.amount||0,
-    valid.has(li.gl_service)?li.gl_service:"other", li.professional||""
-  ));
+  // Sanity floor: never let the AI price a line below what our own deterministic
+  // classifier would charge for the same description. The analyze prompt is
+  // tuned to resolve every ambiguity downward, which on a big litigation bill
+  // collapses genuine drafting work into the cheapest review tier and produces
+  // an indefensible total. Flooring each line to max(AI, regex) keeps the AI's
+  // narrative and per-line flags while guaranteeing the total is at least what
+  // the built-in parser would have shown.
+  items = lines.map(li=>{
+    const aiTask = valid.has(li.gl_service) ? li.gl_service : "other";
+    let task = aiTask;
+    if(aiTask!=="discount"){
+      const regexTask = classify(li.description||"");
+      if((feeMap[regexTask]||0) > (feeMap[aiTask]||0)) task = regexTask;
+    }
+    return mkItem(li.description||"", li.hours||0, li.rate||0, li.amount||0, task, li.professional||"");
+  });
   if(!items.length){
     $("#status").textContent="Could not detect line items in that PDF. Please try a text-based (not scanned) invoice.";
     return;
